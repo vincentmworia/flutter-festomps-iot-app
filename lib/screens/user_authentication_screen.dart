@@ -153,39 +153,43 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
                           Expanded(
                               child: Align(
                             alignment: FractionalOffset.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  (_authenticationMode ==
-                                          AuthenticationMode.login)
-                                      ? 'Don\'t have an account? '
-                                      : 'Already have an account? ',
-                                  style: const TextStyle(
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(
-                                      () {
-                                        (_authenticationMode ==
-                                                AuthenticationMode.signup)
-                                            ? _authenticationMode =
-                                                AuthenticationMode.login
-                                            : _authenticationMode =
-                                                AuthenticationMode.signup;
-                                      },
-                                    );
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(
+                                  () {
+                                    (_authenticationMode ==
+                                            AuthenticationMode.signup)
+                                        ? _authenticationMode =
+                                            AuthenticationMode.login
+                                        : _authenticationMode =
+                                            AuthenticationMode.signup;
                                   },
-                                  child: Text(
-                                    '\tClick here ',
-                                    style: TextStyle(
-                                        color: Theme.of(context).primaryColor,
-                                        fontSize: 16.0),
-                                  ),
+                                );
+                              },
+                              child: SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.1,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text(
+                                      (_authenticationMode ==
+                                              AuthenticationMode.login)
+                                          ? 'Don\'t have an account? '
+                                          : 'Already have an account? ',
+                                      style: const TextStyle(
+                                        fontSize: 16.0,
+                                      ),
+                                    ),
+                                    Text(
+                                      '\tClick here ',
+                                      style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontSize: 16.0),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ))
                         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../global/enum_data.dart';
 import '../widgets/custom_drawer.dart';
 import '../widgets/station.dart';
 
@@ -18,6 +19,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     super.initState();
+
     _tabController = TabController(length: 3, vsync: this, initialIndex: 1);
   }
 
@@ -38,6 +40,7 @@ class _HomeScreenState extends State<HomeScreen>
           ),
         ),
         bottom: TabBar(
+            // isScrollable: false, todo
             controller: _tabController,
             labelColor: Theme.of(context).primaryColor,
             labelStyle: const TextStyle(
@@ -53,26 +56,16 @@ class _HomeScreenState extends State<HomeScreen>
               Tab(
                 text: '\t\t\t\t\t\tALL\nSTATIONS',
               ),
-              Tab(
-                text: 'SORTING',
-              ),
+              Tab(text: 'SORTING'),
             ]),
       ),
       drawer: const CustomDrawer(),
       body: TabBarView(controller: _tabController, children: const [
-        // Center(
-        //   child: Text('DISTRIBUTION Page'),
-        // ),
-        StationPage(),
-        StationPage(),
-        // Center(
-        //   child: Text('ALL Page'),
-        // ),
-        // Center(
-        //   child: Text('SORTING Page'),
-        // ),
-
-        StationPage(),
+        StationPage(Station.distribution),
+        Center(
+          child: Text('ALL STATIONS'),
+        ),
+        StationPage(Station.sorting),
       ]),
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: Colors.white,
@@ -80,16 +73,23 @@ class _HomeScreenState extends State<HomeScreen>
         selectedItemColor: Theme.of(context).primaryColor,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.check_box_outline_blank),
+            icon: Icon(Icons.indeterminate_check_box_outlined),
+            // icon: Icon(Icons.check_box_outlined),
+            tooltip: 'PLC CONNECTION:\tOFF',
             label: 'PLC CONN:\tOFF',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.phone_android),
+            icon:
+                // Icon(Icons.signal_cellular_alt_rounded),
+                // Icon(Icons.wifi),
+                Icon(Icons.cancel),
             label: 'PHONE CONN:\tOFF',
+            tooltip: 'PHONE CONNECTION:\tOFF',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'CONN USERS:\t7',
+            tooltip: 'CONNECTED USERS:\t7',
           ),
         ],
       ),

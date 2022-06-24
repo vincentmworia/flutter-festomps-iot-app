@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import './screens/home_screen.dart';
+import './screens/input_output_page.dart';
 import './screens/user_authentication_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/about_screen.dart';
@@ -17,7 +18,7 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
   static const String _appName = 'Flutter Demo';
   static const MaterialColor _appPrimaryColor = Colors.blue;
-  static const MaterialColor _appSecondaryColor = Colors.teal;
+  static const MaterialColor _appSecondaryColor = Colors.cyan;
   static const _defaultScreen = UserAuthenticationScreen();
 
   @override
@@ -30,7 +31,8 @@ class MyApp extends StatelessWidget {
           errorColor: Colors.red,
           colorScheme: ColorScheme.fromSwatch(primarySwatch: _appPrimaryColor)
               .copyWith(secondary: _appSecondaryColor),
-          appBarTheme: AppBarTheme(toolbarHeight: 70.0,
+          appBarTheme: AppBarTheme(
+              toolbarHeight: 70.0,
               backgroundColor: Colors.white,
               centerTitle: true,
               iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
@@ -43,6 +45,7 @@ class MyApp extends StatelessWidget {
       home: _defaultScreen,
       routes: {
         HomeScreen.routeName: (_) => const HomeScreen(),
+        InputOutputScreen.routeName: (_) => const InputOutputScreen(),
         SettingsScreen.routeName: (_) => const SettingsScreen(),
         AboutScreen.routeName: (_) => const AboutScreen(),
         AdminScreen.routeName: (_) => const AdminScreen(),

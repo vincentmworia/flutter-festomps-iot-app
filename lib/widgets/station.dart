@@ -1,303 +1,128 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
-class StationPage extends StatefulWidget {
-  const StationPage({Key? key}) : super(key: key);
+import '../global/enum_data.dart';
+import './control_panel.dart';
+import './monitor_panel.dart';
 
-  @override
-  State<StationPage> createState() => _StationPageState();
-}
+class StationPage extends StatelessWidget {
+  const StationPage(this.stationName, {Key? key}) : super(key: key);
+  final Station stationName;
 
-class _StationPageState extends State<StationPage> {
-  final StreamController _streamController = StreamController();
-  var _dataPresent = true;
-  var _newDataPresent = false;
-  var _lockStream = false;
+  Widget _cardView(
+          {required double width,
+          required double height,
+          required Color backgroundColor,
+          required Widget child}) =>
+      Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(width * 0.075),
+        ),
+        elevation: 8,
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(width * 0.075),
+            color: backgroundColor,
+          ),
+          child: child,
+        ),
+      );
 
-  @override
-  void dispose() {
-    super.dispose();
-    _streamController.close();
-  }
-
-  // todo chnage dep
-  @override
-  void initState() {
-    super.initState();
-    Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      _getServerData();
-    });
-  }
-
-  Future<void> _getServerData() async {
-    try {
-      final response = await http.get(url);
-      _streamController.sink.add(response);
-
-      _dataPresent = true;
-      // print('got');
-    } on SocketException {
-      _dataPresent = true;
-      // print('no net');
-    } catch (err) {
-      _dataPresent = true;
-      print(err.toString());
-      // print('bad');
-    } finally {
-      // todo CHECK NO INTERNET STATUS
-      // if (_newDataPresent != _dataPresent) {
-      //   print('finally');
-      //   setState(() {});
-      //   // if (_dataPresent == false) {
-      //   //   _lockStream = true;
-      //   // }
-      //   // _streamController.sink.done;
-      // }
-      _newDataPresent = _dataPresent;
-    }
-  }
-
-  var _startPressed = false;
-  var _stopPressed = false;
-  var _resetPressed = false;
-  var _manualModePressed = false;
-  var _manualMode = true;
-  late bool _buttonPressed;
-
-  Widget _elevatedBn({required Uri url,
-    required String btnText,
-    required bool theButtonPressed,
-    required Map<String, dynamic> jsonData}) {
-    return ElevatedButton(
-      onPressed: _buttonPressed
-          ? null
-          : () async {
-        setState(() {
-          theButtonPressed = true;
-          // _extend = true;
-        });
-
-        await http.patch(url, body: json.encode(jsonData));
-        setState(() {
-          theButtonPressed = false;
-        });
-      },
-      child: Text(btnText),
-      style: ElevatedButton.styleFrom(primary: Theme
-          .of(context)
-          .primaryColor),
-    );
-  }
-
-  final url = Uri.parse(
-      'https://cylinder-88625-default-rtdb.firebaseio.com/station1Control.json');
+  Widget _headerText({
+    required double textHeight,
+    required String title,
+    required Color color,
+  }) =>
+      SizedBox(
+        width: double.infinity,
+        height: textHeight,
+        child: Center(
+            child: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: color, fontSize: 22.0, letterSpacing: 2.0),
+        )),
+      );
 
   @override
   Widget build(BuildContext context) {
-    _buttonPressed =
-    _startPressed || _stopPressed || _resetPressed || _manualModePressed
-        ? true
-        : false;
-    final _deviceWidth = MediaQuery
-        .of(context)
-        .size
-        .width;
-    final _deviceHeight = MediaQuery
-        .of(context)
-        .size
-        .width;
-    return SafeArea(
-        child: Scaffold(
-          body: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  width: _deviceWidth * 0.9,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.all(30),
-                        height: 250,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                              color: Theme
-                                  .of(context)
-                                  .primaryColor, width: 4),
-                        ),
-                        child: !_dataPresent
-                            ? const Center(
-                          child: Text('No Internet Connection...'),
-                        )
-                            : StreamBuilder(
-                            stream: _streamController.stream,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              } else if (snapshot.hasError) {
-                                return const Center(
-                                  child: Text('Please wait...'),
-                                );
-                              }
-
-                              final response =
-                              snapshot.data! as http.Response;
-                              final data = json.decode(response.body);
-                              // _manualMode = data["manual_mode_phone"] == "false"
-                              //     ? false
-                              //     : true;
-                              return FittedBox(
-                                child: Text(
-                                  'Start:\t${data["start"]}\nStop:\t${data["stop"]}\nReset:\t${data["reset"]}\nManual/Auto:\t${data["manual_mode_phone"]} ${data["manual_mode_phone"] ==
-                                      "false"
-                                      ? "AUTO"
-                                      : "MANUAL"}\nManual/Auto MACHINE:\t${data["manual_mode_machine"]} ${data["manual_mode_machine"] ==
-                                      "false"
-                                      ? "AUTO"
-                                      : "MANUAL"}\nManual Number:\t${data["manual_step_number"]}\nCode Flow:\t${data["code_step_number"]}',
-                                  textAlign: TextAlign.start,
-                                  style: const TextStyle(fontSize: 25),
-                                ),
-                              );
-                            }),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: _buttonPressed
-                                ? null
-                                : () async {
-                              setState(() {
-                                _startPressed = true;
-                                // _extend = true;
-                              });
-
-                              await http.patch(url,
-                                  body: json.encode({'start': 'true'}));
-                              Future.delayed(
-                                  const Duration(milliseconds: 500))
-                                  .then((value) {
-                                setState(() {
-                                  _startPressed = false;
-                                });
-                              });
-                            },
-                            child: const Text("START"),
-                            style: ElevatedButton.styleFrom(
-                                primary: Theme
-                                    .of(context)
-                                    .primaryColor),
-                          ),
-                          ElevatedButton(
-                            onPressed: _buttonPressed
-                                ? null
-                                : () async {
-                              setState(() {
-                                _stopPressed = true;
-                                // _extend = true;
-                              });
-
-                              await http.patch(url,
-                                  body: json.encode({'stop': 'true'}));
-                              Future.delayed(
-                                  const Duration(milliseconds: 500))
-                                  .then((value) {
-                                setState(() {
-                                  _stopPressed = false;
-                                });
-                              });
-                            },
-                            child: const Text("STOP"),
-                            style: ElevatedButton.styleFrom(
-                                primary: Theme
-                                    .of(context)
-                                    .primaryColor),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          ElevatedButton(
-                            onPressed: _buttonPressed
-                                ? null
-                                : () async {
-                              setState(() {
-                                _resetPressed = true;
-                                // _extend = true;
-                              });
-
-                              await http.patch(url,
-                                  body: json.encode({'reset': 'true'}));
-                              Future.delayed(
-                                  const Duration(milliseconds: 500))
-                                  .then((value) {
-                                setState(() {
-                                  _resetPressed = false;
-                                });
-                              });
-                            },
-                            child: const Text("RESET"),
-                            style: ElevatedButton.styleFrom(
-                                primary: Theme
-                                    .of(context)
-                                    .primaryColor),
-                          ),
-                          ElevatedButton(
-                            onPressed: _buttonPressed
-                                ? null
-                                : () async {
-                              setState(() {
-                                _manualMode = !_manualMode;
-                                _manualModePressed = true;
-                              });
-
-                              await http.patch(url,
-                                  body: json.encode({
-                                    "manual_mode_phone":
-                                    _manualMode ? "true" : "false"
-                                  }));
-                              // print(json.decode(res.body)["manual_mode_phone"]);
-                              // _manualMode = res.body == "true" ? true : false;
-                              Future.delayed(
-                                const Duration(milliseconds: 500),)
-                                  .then((value) {
-                                setState(() {
-                                  _manualModePressed = false;
-                                });
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                                primary: Theme
-                                    .of(context)
-                                    .primaryColor),
-                            child: Text(_manualMode ? "MANUAL" : "AUTOMATIC"),
-                          )
-                        ],
-                      ),
-                    ],),
-                ),
-                Container(
-                  width: _deviceWidth * 0.02,
-                  height: _deviceHeight * 0.9,
-                  margin: const EdgeInsets.all(2),
-                  // padding: const EdgeInsets.all(10),
-                  color: Colors.black,
-                )
-              ],
+    return Padding(
+      padding: const EdgeInsets.all(0.0),
+      child: LayoutBuilder(builder: (context, cnt) {
+        final dataWidth = cnt.maxWidth;
+        final dataHeight = cnt.maxHeight;
+        final cardHeight = dataHeight * 0.4;
+        final textHeight = dataHeight * 0.0675 * 0.5;
+        const cardBackgroundClr = Colors.white;
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(
+              width: dataWidth,
+              height: dataHeight,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  _headerText(
+                      textHeight: textHeight,
+                      title: 'MONITOR PANEL',
+                      color: Theme.of(context).primaryColor),
+                  _cardView(
+                    width: dataWidth,
+                    height: cardHeight,
+                    backgroundColor: cardBackgroundClr,
+                    child: MonitorPanel(
+                      stationName == Station.distribution
+                          ? Station.distribution
+                          : stationName == Station.sorting
+                              ? Station.sorting
+                              : Station.all,
+                    ),
+                  ),
+                  _headerText(
+                      textHeight: textHeight,
+                      title: 'CONTROL PANEL',
+                      color: Theme.of(context).primaryColor),
+                  _cardView(
+                    width: dataWidth,
+                    height: cardHeight,
+                    backgroundColor: cardBackgroundClr,
+                    child: ControlPanel(
+                      width: cnt.maxWidth,
+                      height: cnt.maxHeight,
+                      stationName: stationName == Station.distribution
+                          ? Station.distribution
+                          : stationName == Station.sorting
+                              ? Station.sorting
+                              : Station.all,
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ));
+          ],
+        );
+      }),
+    );
   }
 }
+
+/*
+
+   Container(
+                            width: cts.maxWidth * 0.05,
+                            height: cts.maxHeight,
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.blue, width: 2),
+                              borderRadius: BorderRadius.circular(
+                                cnt.maxWidth * 0.05,
+                              ),
+                              color: Theme.of(context)
+                                  .primaryColor
+                                  .withOpacity(0.1),
+                            ),
+                          ),
+
+*/

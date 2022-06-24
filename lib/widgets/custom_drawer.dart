@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/user_authentication_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/input_output_page.dart';
 import '../screens/settings_screen.dart';
 import '../screens/about_screen.dart';
 import '../screens/admin_screen.dart';
@@ -92,6 +93,12 @@ class CustomDrawer extends StatelessWidget {
                 .pushReplacementNamed(HomeScreen.routeName),
           ),
           _buildDrawer(
+            icon: const Icon(Icons.output),
+            title: 'I/O Status',
+            onTap: () => Navigator.of(context)
+                .pushReplacementNamed(InputOutputScreen.routeName),
+          ),
+          _buildDrawer(
             icon: const Icon(Icons.chat),
             title: 'Settings',
             onTap: () => Navigator.of(context)
@@ -100,13 +107,13 @@ class CustomDrawer extends StatelessWidget {
           _buildDrawer(
             icon: const Icon(Icons.chat),
             title: 'About',
-            onTap:  () => Navigator.of(context)
+            onTap: () => Navigator.of(context)
                 .pushReplacementNamed(AboutScreen.routeName),
           ),
           _buildDrawer(
             icon: const Icon(Icons.chat),
             title: 'Admin',
-            onTap:  () => Navigator.of(context)
+            onTap: () => Navigator.of(context)
                 .pushReplacementNamed(AdminScreen.routeName),
           ),
           Expanded(
