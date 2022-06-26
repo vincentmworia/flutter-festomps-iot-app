@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../global/enum_data.dart';
+import '../../global/enum_data.dart';
 
 class ControlPanel extends StatefulWidget {
   const ControlPanel({
@@ -72,6 +72,7 @@ class _ControlPanelState extends State<ControlPanel> {
           required double height,
           required String text,
           required Color dividerColor,
+          required String step,
           required bool isActive}) =>
       SizedBox(
         width: width * 0.25,
@@ -98,23 +99,11 @@ class _ControlPanelState extends State<ControlPanel> {
                         : ControlPanel._offColor,
                   ),
                 ),
-                if (text == 'Manual' && isActive)
-                  StreamBuilder(
-                      stream: widget.stationName == Station.distribution
-                          ? _streamControllerDistributionTxtManAuto.stream
-                          : _streamControllerDistributionTxtManAuto.stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const Center();
-                        }
-                        final step = snapshot.data as String;
-                        return  Text(
-                          step,
-                          style: const TextStyle(color: Colors.black, fontSize: 25.0),
-                          textAlign: TextAlign.center,
-                        );
-                      })
+                Text(
+                  text == 'Manual' && isActive ? step : '',
+                  style: const TextStyle(color: Colors.black, fontSize: 25.0),
+                  textAlign: TextAlign.center,
+                )
               ],
             ),
           ],
@@ -192,12 +181,17 @@ class _ControlPanelState extends State<ControlPanel> {
   final StreamController _streamControllerSortingPower = StreamController();
   final StreamController _streamControllerAllPower = StreamController();
 
-  final StreamController _streamControllerDistributionManAuto =
+  final StreamController _streamControllerDistributionManualAuto =
       StreamController();
+
+  // final StreamController _streamControllerDistributionAuto = StreamController();
   final StreamController _streamControllerDistributionBnManAuto =
       StreamController();
 
-  final StreamController _streamControllerSortingManAuto = StreamController();
+  final StreamController _streamControllerSortingManualAuto =
+      StreamController();
+
+  // final StreamController _streamControllerSortingAuto = StreamController();
   final StreamController _streamControllerSortingBnManAuto = StreamController();
 
   final StreamController _streamControllerDistributionTxtManAuto =
@@ -214,7 +208,7 @@ class _ControlPanelState extends State<ControlPanel> {
         _streamControllerAll.close();
         _streamControllerSortingPower.close();
         _streamControllerAllPower.close();
-        _streamControllerSortingManAuto.close();
+        _streamControllerSortingManualAuto.close();
         _streamControllerSortingBnManAuto.close();
         _streamControllerSortingTxtManAuto.close();
         break;
@@ -223,7 +217,7 @@ class _ControlPanelState extends State<ControlPanel> {
         _streamControllerAll.close();
         _streamControllerDistributionPower.close();
         _streamControllerAllPower.close();
-        _streamControllerDistributionManAuto.close();
+        _streamControllerDistributionManualAuto.close();
         _streamControllerDistributionBnManAuto.close();
         _streamControllerDistributionTxtManAuto.close();
         break;
@@ -232,8 +226,8 @@ class _ControlPanelState extends State<ControlPanel> {
         _streamControllerSorting.close();
         _streamControllerDistributionPower.close();
         _streamControllerSortingPower.close();
-        _streamControllerDistributionManAuto.close();
-        _streamControllerSortingManAuto.close();
+        _streamControllerDistributionManualAuto.close();
+        _streamControllerSortingManualAuto.close();
         _streamControllerDistributionBnManAuto.close();
         _streamControllerSortingBnManAuto.close();
         _streamControllerDistributionTxtManAuto.close();
@@ -253,11 +247,15 @@ class _ControlPanelState extends State<ControlPanel> {
             ? MachineMode.manual
             : MachineMode.auto;
         machineModeDistribution = systemMode;
+        final manualData = {
+          'system_mode': systemMode,
+          'manual_step_number': manualStepNo
+        };
 
         // print('DISTRIBUTION POWER: \t$systemPower');
         // print('DISTRIBUTION MODE: \t$systemMode');
         _streamControllerDistributionPower.sink.add(systemPower);
-        _streamControllerDistributionManAuto.sink.add(systemMode);
+        _streamControllerDistributionManualAuto.sink.add(manualData);
         _streamControllerDistributionBnManAuto.sink.add(systemMode);
         _streamControllerDistributionTxtManAuto.sink.add(manualStepNo);
         _streamControllerDistribution.sink.add(response);
@@ -271,9 +269,12 @@ class _ControlPanelState extends State<ControlPanel> {
             ? MachineMode.manual
             : MachineMode.auto;
         machineModeSorting = systemMode;
-
+        final manualData = {
+          'system_mode': systemMode,
+          'manual_step_number': manualStepNo
+        };
         _streamControllerSortingPower.sink.add(systemPower);
-        _streamControllerSortingManAuto.sink.add(systemMode);
+        _streamControllerSortingManualAuto.sink.add(manualData);
         _streamControllerSortingBnManAuto.sink.add(systemMode);
         _streamControllerSortingTxtManAuto.sink.add(manualStepNo);
         _streamControllerSorting.sink.add(response);
@@ -282,7 +283,6 @@ class _ControlPanelState extends State<ControlPanel> {
         final response = await http.get(url('stationAllControl'));
         final stnData = json.decode(response.body);
         final systemPower = stnData["system_on"] == "true" ? true : false;
-        // print('ALL POWER: \t$systemPower');
         _streamControllerAllPower.sink.add(systemPower);
         _streamControllerAll.sink.add(response);
         break;
@@ -325,24 +325,32 @@ class _ControlPanelState extends State<ControlPanel> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center();
             }
-            MachineMode machineMode = snapshot.data as MachineMode;
+            // final manualData = {
+            //   'system_mode': systemMode,
+            //   'manual_step_number': manualStepNo
+            // };
+
+            final machineStateMode = snapshot.data as Map<String, dynamic>;
+            MachineMode mcMode = machineStateMode['system_mode'] as MachineMode;
+            final stp = machineStateMode['manual_step_number'] as String;
+
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _autoManualDisplay(
-                  width: width,
-                  height: height,
-                  text: 'Auto',
-                  dividerColor: Theme.of(context).primaryColor,
-                  isActive: machineMode == MachineMode.auto ? true : false,
-                ),
+                    width: width,
+                    height: height,
+                    text: 'Auto',
+                    dividerColor: Theme.of(context).primaryColor,
+                    isActive: mcMode == MachineMode.auto ? true : false,
+                    step: stp),
                 _autoManualDisplay(
-                  width: width,
-                  height: height,
-                  text: 'Manual',
-                  dividerColor: Theme.of(context).primaryColor,
-                  isActive: machineMode == MachineMode.manual ? true : false,
-                ),
+                    width: width,
+                    height: height,
+                    text: 'Manual',
+                    dividerColor: Theme.of(context).primaryColor,
+                    isActive: mcMode == MachineMode.manual ? true : false,
+                    step: stp)
               ],
             );
           });
@@ -467,13 +475,14 @@ class _ControlPanelState extends State<ControlPanel> {
                         _streamManualAuto(
                           width: cons.maxWidth,
                           height: cons.maxHeight,
-                          stream: _streamControllerDistributionManAuto.stream,
+                          stream:
+                              _streamControllerDistributionManualAuto.stream,
                         ),
                       if (widget.stationName == Station.sorting)
                         _streamManualAuto(
                           width: cons.maxWidth,
                           height: cons.maxHeight,
-                          stream: _streamControllerSortingManAuto.stream,
+                          stream: _streamControllerSortingManualAuto.stream,
                         ),
                     ],
                   )

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../global/enum_data.dart';
 // import '../providers/control_operations.dart';
-import './control_panel.dart';
+import 'control_panel/control_panel.dart';
 import './monitor_panel.dart';
 
 class StationPage extends StatelessWidget {

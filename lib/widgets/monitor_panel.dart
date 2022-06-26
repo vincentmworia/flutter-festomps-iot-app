@@ -1,4 +1,8 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import '../global/enum_data.dart';
 import './image_view.dart';
@@ -25,50 +29,114 @@ enum ViewMode {
 }
 
 class _MonitorPanelState extends State<MonitorPanel> {
-  var _currentStep = 0; // todo Provider to change steps
   ViewMode _viewMode = ViewMode.stepper;
+
+  Uri url(String station) => Uri.parse(
+      'https://cylinder-88625-default-rtdb.firebaseio.com/$station.json');
+
+  final StreamController _stepDistribution = StreamController();
+  final StreamController _stepSorting = StreamController();
+  final StreamController _stepAll = StreamController();
+
+  @override
+  void initState() {
+    super.initState();
+    // todo adjust time to 10ms
+    Timer.periodic(const Duration(milliseconds: 3000), (timer) {
+      _getServerData();
+    });
+  }
+
+  Future<void> _getServerData() async {
+    switch (widget.stationName) {
+      case Station.distribution:
+        final response = await http.get(url('station1Control'));
+        final stnData = json.decode(response.body);
+        final codeStepNo = stnData["code_step_number"] as String;
+        _stepDistribution.sink.add(codeStepNo);
+        break;
+      case Station.sorting:
+        final response = await http.get(url('station2Control'));
+        final stnData = json.decode(response.body);
+        final codeStepNo = stnData["code_step_number"] as String;
+        _stepSorting.sink.add(codeStepNo);
+        break;
+      case Station.all:
+        final response = await http.get(url('stationAllControl'));
+        final stnData = json.decode(response.body);
+        final codeStepNo = stnData["code_step_number"] as String;
+        _stepAll.sink.add(codeStepNo);
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    switch (widget.stationName) {
+      case Station.distribution:
+        _stepSorting.close();
+        _stepAll.close();
+        break;
+      case Station.sorting:
+        _stepDistribution.close();
+        _stepAll.close();
+        break;
+      case Station.all:
+        _stepDistribution.close();
+        _stepSorting.close();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    const stepDistribution = 2;
-    const stepSorting = 1;
-    const stepAllStations = 4;
-    _currentStep = widget.stationName == Station.distribution
-        ? stepDistribution
-        : widget.stationName == Station.sorting
-            ? stepSorting
-            : stepAllStations;
     Workpiece workpiece = Workpiece.black;
-    return Stack(
-      children: [
-        if (_viewMode == ViewMode.image)
-          Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: StepperView(_currentStep, widget.stationName, workpiece))
-        else
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ImageView(_currentStep, widget.stationName, widget.width,
-                widget.height, workpiece),
-          ),
-        GestureDetector(
-          onDoubleTap: () {
-            setState(
-              () => _viewMode == ViewMode.stepper
-                  ? _viewMode = ViewMode.image
-                  : _viewMode = ViewMode.stepper,
-            );
-          },
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(widget.width * 0.075),
-              // color: Theme.of(context).primaryColor.withOpacity(0.1), todo
-            ),
-          ),
-        ),
-      ],
-    );
+    return StreamBuilder(
+        stream: widget.stationName == Station.distribution
+            ? _stepDistribution.stream
+            : widget.stationName == Station.sorting
+                ? _stepSorting.stream
+                : _stepAll.stream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: Text('Loading...'),);
+          }
+          final step = snapshot.data as String;
+          final currentStep = int.parse(step);
+
+          return Stack(
+            children: [
+              if (_viewMode == ViewMode.image)
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child:
+                        StepperView(currentStep, widget.stationName, workpiece))
+              else
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ImageView(currentStep, widget.stationName,
+                      widget.width, widget.height, workpiece),
+                ),
+              GestureDetector(
+                onDoubleTap: () {
+                  setState(
+                    () => _viewMode == ViewMode.stepper
+                        ? _viewMode = ViewMode.image
+                        : _viewMode = ViewMode.stepper,
+                  );
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(widget.width * 0.075),
+                    // color: Theme.of(context).primaryColor.withOpacity(0.1), todo
+                  ),
+                ),
+              ),
+            ],
+          );
+        });
   }
 }
