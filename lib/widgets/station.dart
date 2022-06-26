@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+// import 'package:provider/provider.dart';
 
 import '../global/enum_data.dart';
+// import '../providers/control_operations.dart';
 import './control_panel.dart';
 import './monitor_panel.dart';
 
@@ -12,24 +14,30 @@ class StationPage extends StatelessWidget {
           {required double width,
           required double height,
           required Color backgroundColor,
+          required BuildContext context,
           required Widget child}) =>
       Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(width * 0.075),
         ),
-        elevation: 8,
+        elevation: 100,
         child: Container(
           width: width,
           height: height,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(width * 0.075),
             color: backgroundColor,
+            border: Border.all(
+              color: Theme.of(context).primaryColor.withOpacity(0.2),
+              // width: 2,
+            ),
           ),
           child: child,
         ),
       );
 
   Widget _headerText({
+
     required double textHeight,
     required String title,
     required Color color,
@@ -38,17 +46,19 @@ class StationPage extends StatelessWidget {
         width: double.infinity,
         height: textHeight,
         child: Center(
-            child: Text(
+            child: FittedBox(
+              child: Text(
           title,
           textAlign: TextAlign.center,
           style: TextStyle(color: color, fontSize: 22.0, letterSpacing: 2.0),
-        )),
+        ),
+            )),
       );
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(0.0),
+      padding: const EdgeInsets.all(8.0),
       child: LayoutBuilder(builder: (context, cnt) {
         final dataWidth = cnt.maxWidth;
         final dataHeight = cnt.maxHeight;
@@ -72,6 +82,7 @@ class StationPage extends StatelessWidget {
                   _cardView(
                     width: dataWidth,
                     height: cardHeight,
+                    context: context,
                     backgroundColor: cardBackgroundClr,
                     child: MonitorPanel(
                       stationName == Station.distribution
@@ -79,6 +90,8 @@ class StationPage extends StatelessWidget {
                           : stationName == Station.sorting
                               ? Station.sorting
                               : Station.all,
+                      width: dataWidth,
+                      height: cardHeight,
                     ),
                   ),
                   _headerText(
@@ -88,6 +101,7 @@ class StationPage extends StatelessWidget {
                   _cardView(
                     width: dataWidth,
                     height: cardHeight,
+                    context: context,
                     backgroundColor: cardBackgroundClr,
                     child: ControlPanel(
                       width: cnt.maxWidth,
@@ -108,21 +122,3 @@ class StationPage extends StatelessWidget {
     );
   }
 }
-
-/*
-
-   Container(
-                            width: cts.maxWidth * 0.05,
-                            height: cts.maxHeight,
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.blue, width: 2),
-                              borderRadius: BorderRadius.circular(
-                                cnt.maxWidth * 0.05,
-                              ),
-                              color: Theme.of(context)
-                                  .primaryColor
-                                  .withOpacity(0.1),
-                            ),
-                          ),
-
-*/

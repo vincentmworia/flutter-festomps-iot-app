@@ -3,3 +3,15 @@ enum Station {
   sorting,
   all,
 }
+
+enum Workpiece {
+  metallic,
+  black,
+  red,
+  unknown,
+}
+
+enum MachineMode {
+  auto,
+  manual,
+}

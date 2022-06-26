@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../screens/user_authentication_screen.dart';
-import '../screens/home_screen.dart';
 import '../screens/input_output_page.dart';
 import '../screens/settings_screen.dart';
 import '../screens/about_screen.dart';
 import '../screens/admin_screen.dart';
+import '../screens/home_screen.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
@@ -88,16 +88,16 @@ class CustomDrawer extends StatelessWidget {
           ),
           _buildDrawer(
             icon: const Icon(Icons.home),
-            title: 'Home',
+            title: 'HOME',
             onTap: () => Navigator.of(context)
                 .pushReplacementNamed(HomeScreen.routeName),
           ),
-          _buildDrawer(
-            icon: const Icon(Icons.output),
-            title: 'I/O Status',
-            onTap: () => Navigator.of(context)
-                .pushReplacementNamed(InputOutputScreen.routeName),
-          ),
+          // _buildDrawer(
+          //   icon: const Icon(Icons.output),
+          //   title: 'I/O Status',
+          //   onTap: () => Navigator.of(context)
+          //       .pushReplacementNamed(InputOutputScreen.routeName),
+          // ),
           _buildDrawer(
             icon: const Icon(Icons.chat),
             title: 'Settings',
