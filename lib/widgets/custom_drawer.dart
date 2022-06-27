@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../screens/user_authentication_screen.dart';
-import '../screens/input_output_page.dart';
+import '../providers/entry_authentication.dart';
 import '../screens/settings_screen.dart';
 import '../screens/about_screen.dart';
 import '../screens/admin_screen.dart';
@@ -70,12 +71,15 @@ class CustomDrawer extends StatelessWidget {
                           color: Colors.blue[300],
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Text(
+                        child: Text(
                           //TODO Username from database
-                          'USERNAME',
-                          style: TextStyle(
+                          Provider.of<FirebaseAuthenticationHandler>(context,
+                                      listen: false)
+                                  .userFullName ??
+                              '',
+                          style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 25.0,
+                            fontSize: 18.0,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.5,
                           ),
@@ -88,7 +92,7 @@ class CustomDrawer extends StatelessWidget {
           ),
           _buildDrawer(
             icon: const Icon(Icons.home),
-            title: 'HOME',
+            title: 'Home',
             onTap: () => Navigator.of(context)
                 .pushReplacementNamed(HomeScreen.routeName),
           ),
@@ -122,10 +126,14 @@ class CustomDrawer extends StatelessWidget {
             child: _buildDrawer(
               icon: const Icon(Icons.logout),
               title: 'Logout',
-              onTap: () =>
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                builder: (_) => const UserAuthenticationScreen(),
-              )),
+              onTap: () {
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (_) => const UserAuthenticationScreen(),
+                ));
+                Provider.of<FirebaseAuthenticationHandler>(context,
+                        listen: false)
+                    .logout();
+              },
             ),
           )),
         ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../global/enum_data.dart';
-import '../global/monitor_data.dart';
+import '../../global/enum_data.dart';
+import '../../global/monitor_data.dart';
 
 class ImageView extends StatelessWidget {
   const ImageView(this.currentStep, this.stationName, this.width, this.height,

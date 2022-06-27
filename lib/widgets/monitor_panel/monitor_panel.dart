@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import '../global/enum_data.dart';
+import '../splash_screen.dart';
+import '../../global/global_data.dart';
+import '../../global/enum_data.dart';
 import './image_view.dart';
 import './stepper_view.dart';
 
@@ -32,7 +34,7 @@ class _MonitorPanelState extends State<MonitorPanel> {
   ViewMode _viewMode = ViewMode.stepper;
 
   Uri url(String station) => Uri.parse(
-      'https://cylinder-88625-default-rtdb.firebaseio.com/$station.json');
+      '${GlobalData.mainEndpointUrl}$station.json');
 
   final StreamController _stepDistribution = StreamController();
   final StreamController _stepSorting = StreamController();
@@ -42,7 +44,7 @@ class _MonitorPanelState extends State<MonitorPanel> {
   void initState() {
     super.initState();
     // todo adjust time to 10ms
-    Timer.periodic(const Duration(milliseconds: 3000), (timer) {
+    Timer.periodic(const Duration(milliseconds: GlobalData.iotUpdateTime), (timer) {
       _getServerData();
     });
   }
@@ -100,7 +102,7 @@ class _MonitorPanelState extends State<MonitorPanel> {
                 : _stepAll.stream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: Text('Loading...'),);
+            return const SplashScreen();
           }
           final step = snapshot.data as String;
           final currentStep = int.parse(step);

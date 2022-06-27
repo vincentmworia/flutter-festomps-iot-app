@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:testapp/screens/all_stations_screen.dart';
+import 'package:provider/provider.dart';
 
+import './screens/all_stations_screen.dart';
 import './screens/home_screen.dart';
 import './screens/station_1_screen.dart';
 import './screens/station_2_screen.dart';
 import './screens/input_output_page.dart';
 import './screens/user_authentication_screen.dart';
-import '../screens/settings_screen.dart';
-import '../screens/about_screen.dart';
-import '../screens/admin_screen.dart';
+import './screens/settings_screen.dart';
+import './screens/about_screen.dart';
+import './screens/admin_screen.dart';
+import './widgets/splash_screen.dart';
+import './providers/entry_authentication.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,41 +29,60 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: _appName,
-      theme: ThemeData(
-          primaryColor: _appPrimaryColor,
-          errorColor: Colors.red,
-          colorScheme: ColorScheme.fromSwatch(primarySwatch: _appPrimaryColor)
-              .copyWith(secondary: _appSecondaryColor),
-          appBarTheme: AppBarTheme(
-              toolbarHeight: 70.0,
-              backgroundColor: Colors.white,
-              centerTitle: true,
-              iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
-              titleTextStyle: const TextStyle(
-                color: _appPrimaryColor,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 5.0,
-              ),
-              actionsIconTheme: const IconThemeData(color: Colors.yellow))),
-      home: _defaultScreen,
-      routes: {
-        HomeScreen.routeName: (_) => const HomeScreen(),
-        AllStationsScreen.routeName:(_)=> const AllStationsScreen(),
-        Station1Screen.routeName: (_) => const Station1Screen(),
-        Station2Screen.routeName: (_) => const Station2Screen(),
-        InputOutputScreen.routeName: (_) => const InputOutputScreen(),
-        SettingsScreen.routeName: (_) => const SettingsScreen(),
-        AboutScreen.routeName: (_) => const AboutScreen(),
-        AdminScreen.routeName: (_) => const AdminScreen(),
-      },
-      onGenerateRoute: (settings) => MaterialPageRoute(
-        builder: (_) => _defaultScreen,
-      ),
-      onUnknownRoute: (settings) => MaterialPageRoute(
-        builder: (_) => _defaultScreen,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => FirebaseAuthenticationHandler(),
+        )
+      ],
+      child: Consumer<FirebaseAuthenticationHandler>(
+        builder: (context, firebaseHandler, _) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: _appName,
+          theme: ThemeData(
+              primaryColor: _appPrimaryColor,
+              errorColor: Colors.red,
+              colorScheme:
+                  ColorScheme.fromSwatch(primarySwatch: _appPrimaryColor)
+                      .copyWith(secondary: _appSecondaryColor),
+              appBarTheme: AppBarTheme(
+                  toolbarHeight: 70.0,
+                  backgroundColor: Colors.white,
+                  centerTitle: true,
+                  iconTheme:
+                      IconThemeData(color: Theme.of(context).primaryColor),
+                  titleTextStyle: const TextStyle(
+                    color: _appPrimaryColor,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 5.0,
+                  ),
+                  actionsIconTheme: const IconThemeData(color: Colors.yellow))),
+          home: firebaseHandler.isAuthenticated
+              ? const HomeScreen()
+              : FutureBuilder(
+              future: firebaseHandler.tryAutoLogin(),
+              builder: (ctx, authResultSnapshot) =>
+              authResultSnapshot.connectionState ==
+                  ConnectionState.waiting
+                  ? const SplashScreen()
+                  : _defaultScreen),
+          routes: {
+            HomeScreen.routeName: (_) => const HomeScreen(),
+            AllStationsScreen.routeName: (_) => const AllStationsScreen(),
+            Station1Screen.routeName: (_) => const Station1Screen(),
+            Station2Screen.routeName: (_) => const Station2Screen(),
+            InputOutputScreen.routeName: (_) => const InputOutputScreen(),
+            SettingsScreen.routeName: (_) => const SettingsScreen(),
+            AboutScreen.routeName: (_) => const AboutScreen(),
+            AdminScreen.routeName: (_) => const AdminScreen(),
+          },
+          onGenerateRoute: (settings) => MaterialPageRoute(
+            builder: (_) => _defaultScreen,
+          ),
+          onUnknownRoute: (settings) => MaterialPageRoute(
+            builder: (_) => _defaultScreen,
+          ),
+        ),
       ),
     );
   }
