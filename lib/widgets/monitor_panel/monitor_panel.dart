@@ -34,7 +34,7 @@ class _MonitorPanelState extends State<MonitorPanel> {
   ViewMode _viewMode = ViewMode.stepper;
 
   Uri url(String station) => Uri.parse(
-      '${GlobalData.mainEndpointUrl}$station.json');
+      '${GlobalData.mainEndpointUrl}/Stations/$station.json');
 
   final StreamController _stepDistribution = StreamController();
   final StreamController _stepSorting = StreamController();

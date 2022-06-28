@@ -7,6 +7,7 @@ import '../screens/settings_screen.dart';
 import '../screens/about_screen.dart';
 import '../screens/admin_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/input_output_page.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({Key? key}) : super(key: key);
@@ -28,6 +29,8 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final firebaseAuthOperation =
+        Provider.of<FirebaseAuthenticationHandler>(context, listen: false);
     return Drawer(
       child: Column(
         children: [
@@ -72,14 +75,11 @@ class CustomDrawer extends StatelessWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          //TODO Username from database
-                          Provider.of<FirebaseAuthenticationHandler>(context,
-                                      listen: false)
-                                  .userFullName ??
-                              '',
+                          '${firebaseAuthOperation.loggedInUser.firstname.toUpperCase()}\n'
+                          '${firebaseAuthOperation.loggedInUser.lastname.toUpperCase()}',
                           style: const TextStyle(
                             color: Colors.white,
-                            fontSize: 18.0,
+                            fontSize: 24.0,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 1.5,
                           ),
@@ -106,7 +106,9 @@ class CustomDrawer extends StatelessWidget {
             icon: const Icon(Icons.chat),
             title: 'Settings',
             onTap: () => Navigator.of(context)
-                .pushReplacementNamed(SettingsScreen.routeName),
+                .pushReplacementNamed(SettingsScreen.routeName, arguments: {
+              'current_user': firebaseAuthOperation.loggedInUser,
+            }),
           ),
           _buildDrawer(
             icon: const Icon(Icons.chat),
@@ -114,12 +116,16 @@ class CustomDrawer extends StatelessWidget {
             onTap: () => Navigator.of(context)
                 .pushReplacementNamed(AboutScreen.routeName),
           ),
-          _buildDrawer(
-            icon: const Icon(Icons.chat),
-            title: 'Admin',
-            onTap: () => Navigator.of(context)
-                .pushReplacementNamed(AdminScreen.routeName),
-          ),
+          if (firebaseAuthOperation.loggedInUser.isAdmin)
+            _buildDrawer(
+              icon: const Icon(Icons.chat),
+              title: 'Admin',
+              onTap: () => Navigator.of(context)
+                  .pushReplacementNamed(AdminScreen.routeName, arguments: {
+                'current_user': firebaseAuthOperation.loggedInUser,
+                'users_data': firebaseAuthOperation.usersData,
+              }),
+            ),
           Expanded(
               child: Align(
             alignment: FractionalOffset.bottomCenter,
@@ -130,9 +136,8 @@ class CustomDrawer extends StatelessWidget {
                 Navigator.of(context).pushReplacement(MaterialPageRoute(
                   builder: (_) => const UserAuthenticationScreen(),
                 ));
-                Provider.of<FirebaseAuthenticationHandler>(context,
-                        listen: false)
-                    .logout();
+
+                firebaseAuthOperation.logout();
               },
             ),
           )),

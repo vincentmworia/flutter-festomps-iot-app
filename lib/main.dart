@@ -36,15 +36,15 @@ class MyApp extends StatelessWidget {
         )
       ],
       child: Consumer<FirebaseAuthenticationHandler>(
-        builder: (context, firebaseHandler, _) => MaterialApp(
+        builder: (_, firebaseAuth, __) => MaterialApp(
           debugShowCheckedModeBanner: false,
-          title: _appName,
+          title: MyApp._appName,
           theme: ThemeData(
-              primaryColor: _appPrimaryColor,
+              primaryColor: MyApp._appPrimaryColor,
               errorColor: Colors.red,
               colorScheme:
-                  ColorScheme.fromSwatch(primarySwatch: _appPrimaryColor)
-                      .copyWith(secondary: _appSecondaryColor),
+                  ColorScheme.fromSwatch(primarySwatch: MyApp._appPrimaryColor)
+                      .copyWith(secondary: MyApp._appSecondaryColor),
               appBarTheme: AppBarTheme(
                   toolbarHeight: 70.0,
                   backgroundColor: Colors.white,
@@ -52,20 +52,20 @@ class MyApp extends StatelessWidget {
                   iconTheme:
                       IconThemeData(color: Theme.of(context).primaryColor),
                   titleTextStyle: const TextStyle(
-                    color: _appPrimaryColor,
+                    color: MyApp._appPrimaryColor,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 5.0,
                   ),
                   actionsIconTheme: const IconThemeData(color: Colors.yellow))),
-          home: firebaseHandler.isAuthenticated
+          home: firebaseAuth.isAuthenticated
               ? const HomeScreen()
               : FutureBuilder(
-              future: firebaseHandler.tryAutoLogin(),
-              builder: (ctx, authResultSnapshot) =>
-              authResultSnapshot.connectionState ==
-                  ConnectionState.waiting
-                  ? const SplashScreen()
-                  : _defaultScreen),
+                  future: firebaseAuth.tryAutoLogin(),
+                  builder: (ctx, authResultSnapshot) =>
+                      authResultSnapshot.connectionState ==
+                              ConnectionState.waiting
+                          ? const SplashScreen()
+                          : _defaultScreen),
           routes: {
             HomeScreen.routeName: (_) => const HomeScreen(),
             AllStationsScreen.routeName: (_) => const AllStationsScreen(),
@@ -77,10 +77,10 @@ class MyApp extends StatelessWidget {
             AdminScreen.routeName: (_) => const AdminScreen(),
           },
           onGenerateRoute: (settings) => MaterialPageRoute(
-            builder: (_) => _defaultScreen,
+            builder: (_) => MyApp._defaultScreen,
           ),
           onUnknownRoute: (settings) => MaterialPageRoute(
-            builder: (_) => _defaultScreen,
+            builder: (_) => MyApp._defaultScreen,
           ),
         ),
       ),

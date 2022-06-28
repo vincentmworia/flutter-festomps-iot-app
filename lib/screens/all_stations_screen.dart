@@ -9,8 +9,10 @@ class AllStationsScreen extends StatelessWidget {
   const AllStationsScreen({Key? key}) : super(key: key);
   static const routeName = '/all_stations_screen';
 
+
   @override
   Widget build(BuildContext context) {
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(

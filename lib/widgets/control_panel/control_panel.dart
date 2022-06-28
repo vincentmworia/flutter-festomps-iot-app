@@ -35,7 +35,7 @@ class _ControlPanelState extends State<ControlPanel> {
   late bool powerAll;
 
   Uri url(String station) =>
-      Uri.parse('${GlobalData.mainEndpointUrl}$station.json');
+      Uri.parse('${GlobalData.mainEndpointUrl}/Stations/$station.json');
 
   // Streams Initialization
   final StreamController _streamControllerDistribution = StreamController();

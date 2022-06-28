@@ -36,6 +36,8 @@ dependencies:
   overlay_support: ^2.0.1
   connectivity_plus: ^2.3.5
   shared_preferences: ^2.0.13
+  intl: ^0.17.0
+  number_display: ^3.0.0
 
 
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../screens/home_screen.dart';
 import '../providers/entry_authentication.dart';
 import '../widgets/http_exception.dart';
 
@@ -26,6 +27,9 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
   var _userLastName = '';
   var _userPassword = '';
 
+  final _emailController = TextEditingController();
+  final _firstNameController = TextEditingController();
+  final _lastNameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -43,6 +47,9 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
     _passwordFocusNode.dispose();
     _confirmPasswordFocusNode.dispose();
 
+    _emailController.dispose();
+    _firstNameController.dispose();
+    _lastNameController.dispose();
     _confirmPasswordController.dispose();
     _passwordController.dispose();
 
@@ -55,6 +62,7 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
 
   Widget _inputField({
     required Key key,
+    required TextEditingController controller,
     required String hintText,
     required IconData icon,
     required bool obscureText,
@@ -71,6 +79,7 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
       child: TextFormField(
         key: key,
+        controller: controller,
         keyboardType: TextInputType.emailAddress,
         focusNode: focusNode,
         autocorrect: autoCorrect,
@@ -143,7 +152,7 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
         errorMessage = 'Email is already in use';
       } else if (error.message.contains('INVALID_EMAIL')) {
         errorMessage = 'This is not a valid email address';
-      }else if (error.message.contains('NOT_ALLOWED')) {
+      } else if (error.message.contains('NOT_ALLOWED')) {
         errorMessage = 'User needs to be allowed by the admin';
       } else if (error.message.contains('OPERATION_NOT_ALLOWED:')) {
         errorMessage = 'Password sign-in is disabled for this project';
@@ -156,16 +165,27 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
         errorMessage = 'Password must be at least 6 characters';
       } else if (error.message.contains('INVALID_PASSWORD')) {
         errorMessage = 'Invalid password';
+      } else if (error.message.contains('FORCE_LOGIN_SUCCESSFUL')) {
+        errorMessage = 'no error';
+        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
       } else {
         errorMessage = errorMessage;
       }
-      return _showDialog(errorMessage);
+      if (errorMessage != 'no error') {
+        return _showDialog(errorMessage);
+      }
     } catch (error) {
       const errorMessage = 'Could not authenticate you, please try again later';
       return _showDialog(errorMessage);
     } finally {
       setState(() {
-        _authenticationMode = AuthenticationMode.login;
+        _emailController.text = '';
+        _firstNameController.text = '';
+        _lastNameController.text = '';
+        _confirmPasswordController.text = '';
+        _passwordController.text = '';
+
+        // _authenticationMode = AuthenticationMode.login;
         _isLoading = false;
       });
     }
@@ -226,6 +246,7 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
                         children: <Widget>[
                           _inputField(
                             key: const ValueKey('email'),
+                            controller: _emailController,
                             hintText: 'Email',
                             icon: Icons.account_box,
                             obscureText: false,
@@ -255,6 +276,7 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
                               AuthenticationMode.signup))
                             _inputField(
                               key: const ValueKey('firstName'),
+                              controller: _firstNameController,
                               hintText: 'First Name',
                               icon: Icons.person,
                               obscureText: false,
@@ -282,6 +304,7 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
                               AuthenticationMode.signup))
                             _inputField(
                               key: const ValueKey('lastName'),
+                              controller: _lastNameController,
                               hintText: 'Last Name',
                               icon: Icons.person,
                               obscureText: false,
@@ -306,6 +329,7 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
                             ),
                           _inputField(
                             key: const ValueKey('password'),
+                            controller: _passwordController,
                             hintText: 'Password',
                             icon: Icons.lock,
                             obscureText: true,
@@ -339,6 +363,7 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
                               AuthenticationMode.signup))
                             _inputField(
                               key: const ValueKey('confirmPassword'),
+                              controller: _confirmPasswordController,
                               hintText: 'Confirm Password',
                               icon: Icons.lock,
                               obscureText: true,
@@ -373,7 +398,8 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
                               ),
                               child: _isLoading
                                   ? const Center(
-                                      child: CircularProgressIndicator(),
+                                      child: CircularProgressIndicator(
+                                          color: Colors.white),
                                     )
                                   : Text(
                                       (_authenticationMode ==
