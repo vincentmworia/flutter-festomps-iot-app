@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:testapp/providers/activate_button.dart';
+import 'package:testapp/providers/logged_in_user.dart';
+import 'package:testapp/screens/admin_detailed_screen.dart';
 
-import './screens/all_stations_screen.dart';
 import './screens/home_screen.dart';
-import './screens/station_1_screen.dart';
-import './screens/station_2_screen.dart';
 import './screens/input_output_page.dart';
 import './screens/user_authentication_screen.dart';
-import './screens/settings_screen.dart';
+import './screens/profile_screen.dart';
 import './screens/about_screen.dart';
 import './screens/admin_screen.dart';
 import './widgets/splash_screen.dart';
@@ -33,10 +33,18 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(
           create: (context) => FirebaseAuthenticationHandler(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ActivateBn(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LoggedInUser(),
         )
       ],
       child: Consumer<FirebaseAuthenticationHandler>(
-        builder: (_, firebaseAuth, __) => MaterialApp(
+          builder: (_, firebaseAuth, __) {
+        // firebaseAuth.logout();
+        return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: MyApp._appName,
           theme: ThemeData(
@@ -68,13 +76,12 @@ class MyApp extends StatelessWidget {
                           : _defaultScreen),
           routes: {
             HomeScreen.routeName: (_) => const HomeScreen(),
-            AllStationsScreen.routeName: (_) => const AllStationsScreen(),
-            Station1Screen.routeName: (_) => const Station1Screen(),
-            Station2Screen.routeName: (_) => const Station2Screen(),
             InputOutputScreen.routeName: (_) => const InputOutputScreen(),
-            SettingsScreen.routeName: (_) => const SettingsScreen(),
+            ProfileScreen.routeName: (_) => const ProfileScreen(),
             AboutScreen.routeName: (_) => const AboutScreen(),
             AdminScreen.routeName: (_) => const AdminScreen(),
+            AdminUserDetailsScreen.routeName: (_) =>
+                const AdminUserDetailsScreen(),
           },
           onGenerateRoute: (settings) => MaterialPageRoute(
             builder: (_) => MyApp._defaultScreen,
@@ -82,8 +89,8 @@ class MyApp extends StatelessWidget {
           onUnknownRoute: (settings) => MaterialPageRoute(
             builder: (_) => MyApp._defaultScreen,
           ),
-        ),
-      ),
+        );
+      }),
     );
   }
 }

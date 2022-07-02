@@ -118,13 +118,21 @@ List<Map<String, String>> sortingData(Workpiece workpiece) => [
                   'content': 'Sorting Red w/p',
                   'imageUrl': 'assets/images/sorting/step3_red.PNG'
                 }
-              : {
-                  'id': '4',
-                  'title': 'STEP THREE',
-                  'subtitle': 'Sorting Metallic w/p',
-                  'content': 'Sorting Metallic w/p',
-                  'imageUrl': 'assets/images/sorting/step3_metallic.PNG'
-                },
+              : workpiece == Workpiece.metallic
+                  ? {
+                      'id': '4',
+                      'title': 'STEP THREE',
+                      'subtitle': 'Sorting Metallic w/p',
+                      'content': 'Sorting Metallic w/p',
+                      'imageUrl': 'assets/images/sorting/step3_metallic.PNG'
+                    }
+                  : {
+                      'id': '4',
+                      'title': 'STEP THREE',
+                      'subtitle': 'Unknown w/p',
+                      'content': 'Unknown w/p',
+                      'imageUrl': 'assets/images/sorting/step3_metallic.PNG'
+                    },
       workpiece == Workpiece.black
           ? {
               'id': '5',
@@ -165,77 +173,76 @@ List<Map<String, String>> sortingData(Workpiece workpiece) => [
     ];
 
 List<Map<String, String>> allStationsData(Workpiece workpiece) => [
-
-  {
-    'id': '0',
-    'title': 'STOP',
-    'subtitle': 'Distribution Station Off',
-    'content': 'Distribution Station Off',
-    'imageUrl': 'assets/images/distribution/step0.jpg'
-  },
-  {
-    'id': '1',
-    'title': 'RESET',
-    'subtitle': 'Reset Button Pressed!',
-    'content': 'Reset Button Pressed!',
-    'imageUrl': 'assets/images/distribution/step9.jpg'
-  },
-  {
-    'id': ' 2',
-    'title': 'STEP ONE',
-    'subtitle': 'Waiting for W/p in Magazine',
-    'content': 'Waiting for W/p in Magazine',
-    'imageUrl': 'assets/images/distribution/step1.PNG'
-  },
-  {
-    'id': '3',
-    'title': 'STEP TWO',
-    'subtitle': 'Extending Feed Cylinder',
-    'content': 'Extending Feed Cylinder',
-    'imageUrl': 'assets/images/distribution/step2.PNG'
-  },
-  {
-    'id': '4',
-    'title': 'STEP THREE',
-    'subtitle': 'Retracting Feed Cylinder',
-    'content': 'Retracting Feed Cylinder',
-    'imageUrl': 'assets/images/distribution/step3.PNG'
-  },
-  {
-    'id': '5',
-    'title': 'STEP FOUR',
-    'subtitle': 'Conveyor Moving...',
-    'content': 'Conveyor Moving...',
-    'imageUrl': 'assets/images/distribution/step4.PNG'
-  },
-  {
-    'id': '6',
-    'title': 'STEP FIVE',
-    'subtitle': 'Block Cylinder Opened',
-    'content': 'Block Cylinder Opened',
-    'imageUrl': 'assets/images/distribution/step5.PNG'
-  },
-  {
-    'id': '7',
-    'title': 'STEP SIX',
-    'subtitle': 'Waiting for w/p to reach station 2',
-    'content': 'Waiting for w/p to reach station 2',
-    'imageUrl': 'assets/images/distribution/step6.PNG'
-  },
-  {
-    'id': '8',
-    'title': 'STEP SEVEN',
-    'subtitle': 'W/p at station 2',
-    'content': 'W/p at station 2',
-    'imageUrl': 'assets/images/distribution/step7.PNG'
-  },
-  {
-    'id': '9',
-    'title': 'STEP EIGHT',
-    'subtitle': 'Cycle Complete',
-    'content': 'Cycle Complete',
-    'imageUrl': 'assets/images/distribution/step8.PNG'
-  },
+      {
+        'id': '0',
+        'title': 'STOP',
+        'subtitle': 'Distribution Station Off',
+        'content': 'Distribution Station Off',
+        'imageUrl': 'assets/images/distribution/step0.jpg'
+      },
+      {
+        'id': '1',
+        'title': 'RESET',
+        'subtitle': 'Reset Button Pressed!',
+        'content': 'Reset Button Pressed!',
+        'imageUrl': 'assets/images/distribution/step9.jpg'
+      },
+      {
+        'id': ' 2',
+        'title': 'STEP ONE',
+        'subtitle': 'Waiting for W/p in Magazine',
+        'content': 'Waiting for W/p in Magazine',
+        'imageUrl': 'assets/images/distribution/step1.PNG'
+      },
+      {
+        'id': '3',
+        'title': 'STEP TWO',
+        'subtitle': 'Extending Feed Cylinder',
+        'content': 'Extending Feed Cylinder',
+        'imageUrl': 'assets/images/distribution/step2.PNG'
+      },
+      {
+        'id': '4',
+        'title': 'STEP THREE',
+        'subtitle': 'Retracting Feed Cylinder',
+        'content': 'Retracting Feed Cylinder',
+        'imageUrl': 'assets/images/distribution/step3.PNG'
+      },
+      {
+        'id': '5',
+        'title': 'STEP FOUR',
+        'subtitle': 'Conveyor Moving...',
+        'content': 'Conveyor Moving...',
+        'imageUrl': 'assets/images/distribution/step4.PNG'
+      },
+      {
+        'id': '6',
+        'title': 'STEP FIVE',
+        'subtitle': 'Block Cylinder Opened',
+        'content': 'Block Cylinder Opened',
+        'imageUrl': 'assets/images/distribution/step5.PNG'
+      },
+      {
+        'id': '7',
+        'title': 'STEP SIX',
+        'subtitle': 'Waiting for w/p to reach station 2',
+        'content': 'Waiting for w/p to reach station 2',
+        'imageUrl': 'assets/images/distribution/step6.PNG'
+      },
+      {
+        'id': '8',
+        'title': 'STEP SEVEN',
+        'subtitle': 'W/p at station 2',
+        'content': 'W/p at station 2',
+        'imageUrl': 'assets/images/distribution/step7.PNG'
+      },
+      {
+        'id': '9',
+        'title': 'STEP EIGHT',
+        'subtitle': 'Cycle Complete',
+        'content': 'Cycle Complete',
+        'imageUrl': 'assets/images/distribution/step8.PNG'
+      },
       {
         'id': '10',
         'title': 'STOP',
@@ -280,13 +287,21 @@ List<Map<String, String>> allStationsData(Workpiece workpiece) => [
                   'content': 'Sorting Red w/p',
                   'imageUrl': 'assets/images/sorting/step3_red.PNG'
                 }
-              : {
-                  'id': '14',
-                  'title': 'STEP THREE',
-                  'subtitle': 'Sorting Metallic w/p',
-                  'content': 'Sorting Metallic w/p',
-                  'imageUrl': 'assets/images/sorting/step3_metallic.PNG'
-                },
+              : workpiece == Workpiece.metallic
+                  ? {
+                      'id': '14',
+                      'title': 'STEP THREE',
+                      'subtitle': 'Sorting Metallic w/p',
+                      'content': 'Sorting Metallic w/p',
+                      'imageUrl': 'assets/images/sorting/step3_metallic.PNG'
+                    }
+                  : {
+                      'id': '14',
+                      'title': 'STEP THREE',
+                      'subtitle': 'Unknown w/p',
+                      'content': 'Unknown w/p',
+                      'imageUrl': 'assets/images/sorting/step3_metallic.PNG'
+                    },
       workpiece == Workpiece.black
           ? {
               'id': '15',

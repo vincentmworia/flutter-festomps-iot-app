@@ -39,8 +39,7 @@ class _MonitorPanelState extends State<MonitorPanel> {
   late StreamController _stepDistribution;
   late StreamController _stepSorting;
   late StreamController _stepAll;
-
-  // late StreamController _workpieceName;
+  late StreamController _workpieceName;
 
   @override
   void initState() {
@@ -62,16 +61,17 @@ class _MonitorPanelState extends State<MonitorPanel> {
         break;
       case Station.sorting:
         final response = await http.get(url('station2Control'));
-        final stnData = json.decode(response.body) as Map<String, dynamic>;
-        // final codeStepNo = stnData["code_step_number"] as String;
-        // final workpiece = stnData["workpiece"] as String;
-        _stepSorting.sink.add(stnData);
+        final stnData = json.decode(response.body);
+        final codeStepNo = stnData["code_step_number"] as String;
+        final workpiece = stnData["workpiece"] as String;
+        _stepSorting.sink.add(codeStepNo);
+        _workpieceName.sink.add(codeStepNo);
         break;
       case Station.all:
         final response = await http.get(url('stationAllControl'));
         final stnData = json.decode(response.body);
-        // final codeStepNo = stnData["code_step_number"] as String;
-        _stepAll.sink.add(stnData);
+        final codeStepNo = stnData["code_step_number"] as String;
+        _stepAll.sink.add(codeStepNo);
         break;
     }
   }
@@ -115,29 +115,8 @@ class _MonitorPanelState extends State<MonitorPanel> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SplashScreen();
           }
-          late String step;
-          Workpiece? workpiece;
-          late int currentStep;
-          if (widget.stationName == Station.distribution) {
-            step = snapshot.data as String;
-            currentStep = int.parse(step);
-          }
-          if (widget.stationName == Station.sorting ||
-              widget.stationName == Station.all) {
-            final data = snapshot.data as Map<String, dynamic>;
-            step = data["code_step_number"] as String;
-            final wPiece = data["workpiece"] as String;
-            workpiece = wPiece == "unknown"
-                ? Workpiece.unknown
-                : wPiece == "black"
-                    ? Workpiece.black
-                    : wPiece == "red"
-                        ? Workpiece.red
-                        : wPiece == "metallic"
-                            ? Workpiece.metallic
-                            : null;
-            currentStep = int.parse(step);
-          }
+          final step = snapshot.data as String;
+          final currentStep = int.parse(step);
 
           return Stack(
             children: [

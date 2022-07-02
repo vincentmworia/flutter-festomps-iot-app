@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -210,265 +212,278 @@ class _UserAuthenticationScreenState extends State<UserAuthenticationScreen> {
           height: mediaQuery.size.height -
               mediaQuery.padding.top -
               mediaQuery.padding.bottom,
-          child: LayoutBuilder(builder: (context, constraints) {
-            return Column(
-              children: <Widget>[
-                if ((_authenticationMode == AuthenticationMode.signup))
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal:
+                    // defaultTargetPlatform==TargetPlatform.windows
+                    //     ? MediaQuery.of(context).size.width * 0.3  :
+                    0),
+            child: LayoutBuilder(builder: (context, constraints) {
+              return Column(
+                children: <Widget>[
+                  if ((_authenticationMode == AuthenticationMode.signup))
+                    _spacing(constraints),
+                  if ((_authenticationMode == AuthenticationMode.login))
+                    // ClipPath(clipper: CurveClipper(), child:
+                    Image(
+                      image: const AssetImage('assets/images/background_2.jpg'),
+                      width: double.infinity,
+                      height: constraints.maxHeight * 0.35,
+                      fit: BoxFit.cover,
+                    ),
+                  // ),
                   _spacing(constraints),
-                if ((_authenticationMode == AuthenticationMode.login))
-                  // ClipPath(clipper: CurveClipper(), child:
-                  Image(
-                    image: const AssetImage('assets/images/background_2.jpg'),
-                    width: double.infinity,
-                    height: constraints.maxHeight * 0.35,
-                    fit: BoxFit.cover,
+                  Text(
+                    'FESTO MPS',
+                    style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontSize: 24.0,
+                        letterSpacing: 10.0,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: ''),
                   ),
-                // ),
-                _spacing(constraints),
-                Text(
-                  'FESTO MPS',
-                  style: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontSize: 24.0,
-                      letterSpacing: 10.0,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: ''),
-                ),
-                _spacing(constraints),
-                SingleChildScrollView(
-                  child: SizedBox(
-                    height: (_authenticationMode == AuthenticationMode.login)
-                        ? constraints.maxHeight * 0.5
-                        : constraints.maxHeight * 0.8,
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        children: <Widget>[
-                          _inputField(
-                            key: const ValueKey('email'),
-                            controller: _emailController,
-                            hintText: 'Email',
-                            icon: Icons.account_box,
-                            obscureText: false,
-                            focusNode: _emailFocusNode,
-                            autoCorrect: false,
-                            enableSuggestions: false,
-                            textCapitalization: TextCapitalization.none,
-                            onFieldSubmitted: (_) => FocusScope.of(context)
-                                .requestFocus(_authenticationMode ==
-                                        AuthenticationMode.signup
-                                    ? _firstNameFocusNode
-                                    : _passwordFocusNode),
-                            textInputAction: TextInputAction.next,
-                            validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  !value.contains('@')) {
-                                return 'Please enter a valid email address';
-                              }
-                              return null;
-                            },
-                            onSaved: (value) {
-                              _userEmail = value!;
-                            },
-                          ),
-                          if ((_authenticationMode ==
-                              AuthenticationMode.signup))
+                  _spacing(constraints),
+                  SingleChildScrollView(
+                    child: SizedBox(
+                      height: (_authenticationMode == AuthenticationMode.login)
+                          ? constraints.maxHeight * 0.5
+                          : constraints.maxHeight * 0.8,
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: <Widget>[
                             _inputField(
-                              key: const ValueKey('firstName'),
-                              controller: _firstNameController,
-                              hintText: 'First Name',
-                              icon: Icons.person,
+                              key: const ValueKey('email'),
+                              controller: _emailController,
+                              hintText: 'Email',
+                              icon: Icons.account_box,
                               obscureText: false,
-                              focusNode: _firstNameFocusNode,
+                              focusNode: _emailFocusNode,
                               autoCorrect: false,
                               enableSuggestions: false,
-                              textCapitalization: TextCapitalization.sentences,
+                              textCapitalization: TextCapitalization.none,
                               onFieldSubmitted: (_) => FocusScope.of(context)
                                   .requestFocus(_authenticationMode ==
                                           AuthenticationMode.signup
-                                      ? _lastNameFocusNode
+                                      ? _firstNameFocusNode
                                       : _passwordFocusNode),
-                              textInputAction: TextInputAction.next,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Enter First Name';
-                                }
-                                return null;
-                              },
-                              onSaved: (value) {
-                                _userFirstName = value!;
-                              },
-                            ),
-                          if ((_authenticationMode ==
-                              AuthenticationMode.signup))
-                            _inputField(
-                              key: const ValueKey('lastName'),
-                              controller: _lastNameController,
-                              hintText: 'Last Name',
-                              icon: Icons.person,
-                              obscureText: false,
-                              focusNode: _lastNameFocusNode,
-                              autoCorrect: false,
-                              enableSuggestions: false,
-                              textCapitalization: TextCapitalization.sentences,
-                              onFieldSubmitted: (_) => FocusScope.of(context)
-                                  .requestFocus(_passwordFocusNode),
                               textInputAction: TextInputAction.next,
                               validator: (value) {
                                 if (value == null ||
                                     value.isEmpty ||
-                                    value.length < 4) {
-                                  return 'Enter Last Name';
+                                    !value.contains('@')) {
+                                  return 'Please enter a valid email address';
                                 }
                                 return null;
                               },
                               onSaved: (value) {
-                                _userLastName = value!;
+                                _userEmail = value!;
                               },
                             ),
-                          _inputField(
-                            key: const ValueKey('password'),
-                            controller: _passwordController,
-                            hintText: 'Password',
-                            icon: Icons.lock,
-                            obscureText: true,
-                            focusNode: _passwordFocusNode,
-                            autoCorrect: false,
-                            enableSuggestions: false,
-                            textCapitalization: TextCapitalization.none,
-                            onFieldSubmitted: (_) => FocusScope.of(context)
-                                .requestFocus(_authenticationMode ==
-                                        AuthenticationMode.signup
-                                    ? _confirmPasswordFocusNode
-                                    : null),
-                            textInputAction:
-                                _authenticationMode == AuthenticationMode.signup
-                                    ? TextInputAction.next
-                                    : TextInputAction.done,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter a valid password.';
-                              }
-                              if (value.length < 7) {
-                                return 'Password must be at least 7 characters long';
-                              }
-                              return null;
-                            },
-                            onSaved: (value) {
-                              _userPassword = value!;
-                            },
-                          ),
-                          if ((_authenticationMode ==
-                              AuthenticationMode.signup))
+                            if ((_authenticationMode ==
+                                AuthenticationMode.signup))
+                              _inputField(
+                                key: const ValueKey('firstName'),
+                                controller: _firstNameController,
+                                hintText: 'First Name',
+                                icon: Icons.person,
+                                obscureText: false,
+                                focusNode: _firstNameFocusNode,
+                                autoCorrect: false,
+                                enableSuggestions: false,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                onFieldSubmitted: (_) => FocusScope.of(context)
+                                    .requestFocus(_authenticationMode ==
+                                            AuthenticationMode.signup
+                                        ? _lastNameFocusNode
+                                        : _passwordFocusNode),
+                                textInputAction: TextInputAction.next,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Enter Last Name';
+                                  }
+                                  if (value.length < 5) {
+                                    return 'Name must be at least 5 characters';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  _userFirstName = value!;
+                                },
+                              ),
+                            if ((_authenticationMode ==
+                                AuthenticationMode.signup))
+                              _inputField(
+                                key: const ValueKey('lastName'),
+                                controller: _lastNameController,
+                                hintText: 'Last Name',
+                                icon: Icons.person,
+                                obscureText: false,
+                                focusNode: _lastNameFocusNode,
+                                autoCorrect: false,
+                                enableSuggestions: false,
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                onFieldSubmitted: (_) => FocusScope.of(context)
+                                    .requestFocus(_passwordFocusNode),
+                                textInputAction: TextInputAction.next,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Enter Last Name';
+                                  }
+                                  if (value.length < 5) {
+                                    return 'Name must be at least 5 characters';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (value) {
+                                  _userLastName = value!;
+                                },
+                              ),
                             _inputField(
-                              key: const ValueKey('confirmPassword'),
-                              controller: _confirmPasswordController,
-                              hintText: 'Confirm Password',
+                              key: const ValueKey('password'),
+                              controller: _passwordController,
+                              hintText: 'Password',
                               icon: Icons.lock,
                               obscureText: true,
-                              focusNode: _confirmPasswordFocusNode,
+                              focusNode: _passwordFocusNode,
                               autoCorrect: false,
                               enableSuggestions: false,
                               textCapitalization: TextCapitalization.none,
-                              onFieldSubmitted: (_) =>
-                                  FocusScope.of(context).requestFocus(null),
-                              textInputAction: TextInputAction.done,
+                              onFieldSubmitted: (_) => FocusScope.of(context)
+                                  .requestFocus(_authenticationMode ==
+                                          AuthenticationMode.signup
+                                      ? _confirmPasswordFocusNode
+                                      : null),
+                              textInputAction: _authenticationMode ==
+                                      AuthenticationMode.signup
+                                  ? TextInputAction.next
+                                  : TextInputAction.done,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Please enter a valid password.';
                                 }
-                                if (_passwordController.text !=
-                                    _confirmPasswordController.text) {
-                                  return 'Passwords do not match';
+                                if (value.length < 7) {
+                                  return 'Password must be at least 7 characters long';
                                 }
                                 return null;
                               },
+                              onSaved: (value) {
+                                _userPassword = value!;
+                              },
                             ),
-                          GestureDetector(
-                            onTap: _isLoading ? null : _submit,
-                            child: Container(
-                              height: 45.0,
-                              margin: const EdgeInsets.only(
-                                  left: 60, right: 60, top: 40),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).primaryColor,
-                                borderRadius: BorderRadius.circular(10.0),
+                            if ((_authenticationMode ==
+                                AuthenticationMode.signup))
+                              _inputField(
+                                key: const ValueKey('confirmPassword'),
+                                controller: _confirmPasswordController,
+                                hintText: 'Confirm Password',
+                                icon: Icons.lock,
+                                obscureText: true,
+                                focusNode: _confirmPasswordFocusNode,
+                                autoCorrect: false,
+                                enableSuggestions: false,
+                                textCapitalization: TextCapitalization.none,
+                                onFieldSubmitted: (_) =>
+                                    FocusScope.of(context).requestFocus(null),
+                                textInputAction: TextInputAction.done,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter a valid password.';
+                                  }
+                                  if (_passwordController.text !=
+                                      _confirmPasswordController.text) {
+                                    return 'Passwords do not match';
+                                  }
+                                  return null;
+                                },
                               ),
-                              child: _isLoading
-                                  ? const Center(
-                                      child: CircularProgressIndicator(
-                                          color: Colors.white),
-                                    )
-                                  : Text(
-                                      (_authenticationMode ==
-                                              AuthenticationMode.signup)
-                                          ? 'Sign Up'
-                                          : 'Login',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        letterSpacing: 1.5,
-                                        fontSize: 22.0,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                          Expanded(
-                              child: Align(
-                            alignment: FractionalOffset.center,
-                            child: GestureDetector(
-                              onTap: _isLoading
-                                  ? null
-                                  : () {
-                                      setState(() {
+                            GestureDetector(
+                              onTap: _isLoading ? null : _submit,
+                              child: Container(
+                                height: 45.0,
+                                margin: const EdgeInsets.only(
+                                    left: 60, right: 60, top: 40),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).primaryColor,
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: _isLoading
+                                    ? const Center(
+                                        child: CircularProgressIndicator(
+                                            color: Colors.white),
+                                      )
+                                    : Text(
                                         (_authenticationMode ==
                                                 AuthenticationMode.signup)
-                                            ? _authenticationMode =
-                                                AuthenticationMode.login
-                                            : _authenticationMode =
-                                                AuthenticationMode.signup;
-                                      });
-                                    },
-                              child: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.1,
-                                child: _isLoading
-                                    ? const Center()
-                                    : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Text(
-                                            (_authenticationMode ==
-                                                    AuthenticationMode.login)
-                                                ? 'Don\'t have an account? '
-                                                : 'Already have an account? ',
-                                            style: const TextStyle(
-                                              fontSize: 16.0,
-                                            ),
-                                          ),
-                                          Text(
-                                            '\tClick here ',
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .primaryColor,
-                                                fontSize: 16.0),
-                                          ),
-                                        ],
+                                            ? 'Sign Up'
+                                            : 'Login',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          letterSpacing: 1.5,
+                                          fontSize: 22.0,
+                                          fontWeight: FontWeight.w600,
+                                        ),
                                       ),
                               ),
                             ),
-                          ))
-                        ],
+                            Expanded(
+                                child: Align(
+                              alignment: FractionalOffset.center,
+                              child: GestureDetector(
+                                onTap: _isLoading
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          (_authenticationMode ==
+                                                  AuthenticationMode.signup)
+                                              ? _authenticationMode =
+                                                  AuthenticationMode.login
+                                              : _authenticationMode =
+                                                  AuthenticationMode.signup;
+                                        });
+                                      },
+                                child: SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.1,
+                                  child: _isLoading
+                                      ? const Center()
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: <Widget>[
+                                            Text(
+                                              (_authenticationMode ==
+                                                      AuthenticationMode.login)
+                                                  ? 'Don\'t have an account? '
+                                                  : 'Already have an account? ',
+                                              style: const TextStyle(
+                                                fontSize: 16.0,
+                                              ),
+                                            ),
+                                            Text(
+                                              '\tClick here ',
+                                              style: TextStyle(
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                  fontSize: 16.0),
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ),
+                            ))
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            );
-          }),
+                ],
+              );
+            }),
+          ),
         ),
       ),
     ));

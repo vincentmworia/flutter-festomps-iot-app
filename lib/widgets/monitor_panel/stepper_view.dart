@@ -9,13 +9,13 @@ class StepperView extends StatelessWidget {
       : super(key: key);
   final int currentStep;
   final Station stationName;
-  final Workpiece workpiece;
+  final Workpiece? workpiece;
 
   @override
   Widget build(BuildContext context) {
     List<Map<String, String>> distributionSteps = distributionData();
-    List<Map<String, String>> sortingSteps = sortingData(workpiece);
-    List<Map<String, String>> allStationsSteps = allStationsData(workpiece);
+    List<Map<String, String>> sortingSteps = sortingData(workpiece!);
+    List<Map<String, String>> allStationsSteps = allStationsData(workpiece!);
 
     return SingleChildScrollView(
       reverse: true,

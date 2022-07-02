@@ -3,11 +3,14 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
+import '../../providers/activate_button.dart';
 import '../splash_screen.dart';
 import '../../global/enum_data.dart';
 import '../../global/global_data.dart';
 import './widget_functions.dart';
+import './buttons_widget.dart';
 
 class ControlPanel extends StatefulWidget {
   const ControlPanel({
@@ -27,7 +30,6 @@ class ControlPanel extends StatefulWidget {
 }
 
 class _ControlPanelState extends State<ControlPanel> {
-  var _activeBn = true;
   late MachineMode machineModeDistribution;
   late MachineMode machineModeSorting;
   late bool powerDistribution;
@@ -38,24 +40,29 @@ class _ControlPanelState extends State<ControlPanel> {
       Uri.parse('${GlobalData.mainEndpointUrl}/Stations/$station.json');
 
   // Streams Initialization
-  final StreamController _streamControllerDistribution = StreamController();
-  final StreamController _streamControllerSorting = StreamController();
-  final StreamController _streamControllerAll = StreamController();
-  final StreamController _streamControllerDistributionPower =
-      StreamController();
-  final StreamController _streamControllerSortingPower = StreamController();
-  final StreamController _streamControllerAllPower = StreamController();
-  final StreamController _streamControllerDistributionManualAuto =
-      StreamController();
-  final StreamController _streamControllerDistributionBnManAuto =
-      StreamController();
-  final StreamController _streamControllerSortingManualAuto =
-      StreamController();
-  final StreamController _streamControllerSortingBnManAuto = StreamController();
-  final StreamController _streamControllerDistributionTxtManAuto =
-      StreamController();
-  final StreamController _streamControllerSortingTxtManAuto =
-      StreamController();
+  late StreamController _streamControllerDistribution;
+
+  late StreamController _streamControllerSorting;
+
+  late StreamController _streamControllerAll;
+
+  late StreamController _streamControllerDistributionPower;
+
+  late StreamController _streamControllerSortingPower;
+
+  late StreamController _streamControllerAllPower;
+
+  late StreamController _streamControllerDistributionManualAuto;
+
+  late StreamController _streamControllerDistributionBnManAuto;
+
+  late StreamController _streamControllerSortingManualAuto;
+
+  late StreamController _streamControllerSortingBnManAuto;
+
+  late StreamController _streamControllerDistributionTxtManAuto;
+
+  late StreamController _streamControllerSortingTxtManAuto;
 
   @override
   void initState() {
@@ -75,12 +82,13 @@ class _ControlPanelState extends State<ControlPanel> {
   Widget _controlBn(
           {required Map<String, double> dimension,
           required String text,
-          required Function() onTap}) =>
+          required Function() onTap,
+          required bool activeBn}) =>
       SizedBox(
         height: dimension['height'],
         width: dimension['width'],
         child: ElevatedButton(
-          onPressed: _activeBn ? onTap : null,
+          onPressed: activeBn ? onTap : null,
           child: Text(
             text,
             textAlign: TextAlign.center,
@@ -88,31 +96,29 @@ class _ControlPanelState extends State<ControlPanel> {
         ),
       );
 
-  Future<void> _bnTrue() => Future.delayed(
-        const Duration(milliseconds: GlobalData.activeBnDelayTime),
-      ).then((_) => setState(() => _activeBn = true));
-
-  Future<void> _startStopResetPressed(String button) async {
-    setState(() => _activeBn = false);
-    switch (widget.stationName) {
-      case Station.distribution:
-        await http.patch(url('station1Control'),
-            body: json.encode({button: 'true'}));
-        break;
-      case Station.sorting:
-        await http.patch(url('station2Control'),
-            body: json.encode({button: 'true'}));
-        break;
-      case Station.all:
-        await http.patch(url('stationAllControl'),
-            body: json.encode({button: 'true'}));
-        break;
-    }
-    _bnTrue();
-  }
+  // Future<void> _startStopResetPressed(String button) async {
+  //   // setState(() => _activeBn = false);
+  //   switch (widget.stationName) {
+  //     case Station.distribution:
+  //       await http.patch(url('station1Control'),
+  //           body: json.encode({button: 'true'}));
+  //       break;
+  //     case Station.sorting:
+  //       await http.patch(url('station2Control'),
+  //           body: json.encode({button: 'true'}));
+  //       break;
+  //     case Station.all:
+  //       await http.patch(url('stationAllControl'),
+  //           body: json.encode({button: 'true'}));
+  //       break;
+  //   }
+  //   _bnTrue();
+  // }
 
   Future<void> _manualAutoPressed() async {
-    setState(() => _activeBn = false);
+    final update = Provider.of<ActivateBn>(context, listen: false);
+    update.changeActiveBnStatus(false);
+
     Future<void> httpReq(String stationName) async {
       await http.patch(url(stationName),
           body: json.encode({
@@ -139,7 +145,11 @@ class _ControlPanelState extends State<ControlPanel> {
         httpReq('stationAllControl');
         break;
     }
-    _bnTrue();
+    Future.delayed(
+      const Duration(milliseconds: GlobalData.activeBnDelayTime),
+    ).then((_) {
+      update.changeActiveBnStatus(true);
+    });
   }
 
   Future<void> _getServerData() async {
@@ -230,16 +240,19 @@ class _ControlPanelState extends State<ControlPanel> {
 
   Widget _streamManAutoBn({
     required Map<String, double> bnDimensions,
-    required Stream stream,
+    required bool activeBn
   }) =>
       StreamBuilder(
-          stream: stream,
+          stream: widget.stationName == Station.distribution
+              ? _streamControllerDistributionBnManAuto.stream
+              : _streamControllerSortingBnManAuto.stream,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center();
             }
             MachineMode machineMode = snapshot.data as MachineMode;
             return _controlBn(
+              activeBn: activeBn, //todo
               dimension: bnDimensions,
               text:
                   'SWITCH\n${machineMode == MachineMode.auto ? 'MANUAL' : 'AUTO'}',
@@ -247,13 +260,62 @@ class _ControlPanelState extends State<ControlPanel> {
             );
           });
 
+  void _disposeListeners() {
+    switch (widget.stationName) {
+      case Station.distribution:
+        _streamControllerSorting.close();
+        _streamControllerAll.close();
+        _streamControllerSortingPower.close();
+        _streamControllerAllPower.close();
+        _streamControllerSortingManualAuto.close();
+        _streamControllerSortingBnManAuto.close();
+        _streamControllerSortingTxtManAuto.close();
+        break;
+      case Station.sorting:
+        _streamControllerDistribution.close();
+        _streamControllerAll.close();
+        _streamControllerDistributionPower.close();
+        _streamControllerAllPower.close();
+        _streamControllerDistributionManualAuto.close();
+        _streamControllerDistributionBnManAuto.close();
+        _streamControllerDistributionTxtManAuto.close();
+        break;
+      case Station.all:
+        _streamControllerDistribution.close();
+        _streamControllerSorting.close();
+        _streamControllerDistributionPower.close();
+        _streamControllerSortingPower.close();
+        _streamControllerDistributionManualAuto.close();
+        _streamControllerSortingManualAuto.close();
+        _streamControllerDistributionBnManAuto.close();
+        _streamControllerSortingBnManAuto.close();
+        _streamControllerDistributionTxtManAuto.close();
+        _streamControllerSortingTxtManAuto.close();
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Streams Initialization
+    _streamControllerDistribution = StreamController();
+    _streamControllerSorting = StreamController();
+    _streamControllerAll = StreamController();
+    _streamControllerDistributionPower = StreamController();
+    _streamControllerSortingPower = StreamController();
+    _streamControllerAllPower = StreamController();
+    _streamControllerDistributionManualAuto = StreamController();
+    _streamControllerDistributionBnManAuto = StreamController();
+    _streamControllerSortingManualAuto = StreamController();
+    _streamControllerSortingBnManAuto = StreamController();
+    _streamControllerDistributionTxtManAuto = StreamController();
+    _streamControllerSortingTxtManAuto = StreamController();
+    _disposeListeners();
     return LayoutBuilder(
       builder: (context, cons) {
         Map<String, double> bnDimensions = {
-          'width': widget.width * 0.35,
-          'height': widget.height * 0.075,
+          'width': cons.maxWidth * 0.35,
+          'height': cons.maxHeight * 0.19,
         };
         return StreamBuilder(
             stream: widget.stationName == Station.distribution
@@ -271,35 +333,54 @@ class _ControlPanelState extends State<ControlPanel> {
                   Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        _controlBn(
-                          dimension: bnDimensions,
-                          text:
-                              'START${(widget.stationName == Station.all) ? ' ALL' : ''}',
-                          onTap: () => _startStopResetPressed('start'),
-                        ),
-                        _controlBn(
-                          dimension: bnDimensions,
-                          text:
-                              'STOP${(widget.stationName == Station.all) ? ' ALL' : ''}',
-                          onTap: () => _startStopResetPressed('stop'),
-                        ),
-                        _controlBn(
-                          dimension: bnDimensions,
-                          text:
-                              'RESET${(widget.stationName == Station.all) ? ' ALL' : ''}',
-                          onTap: () => _startStopResetPressed('reset'),
-                        ),
-                        if (widget.stationName == Station.distribution)
-                          _streamManAutoBn(
+                        SizedBox(
+                          height: (widget.stationName == Station.all)
+                              ? cons.maxHeight
+                              : cons.maxHeight,
+                          width: 120,
+                          child: ControlBns(
+                            streamController:
+                                (widget.stationName == Station.distribution)
+                                    ? _streamControllerDistributionBnManAuto
+                                    : _streamControllerSortingBnManAuto,
+                            controlBn: _controlBn,
                             bnDimensions: bnDimensions,
-                            stream:
-                                _streamControllerDistributionBnManAuto.stream,
+                            stationName: widget.stationName,
+                            streamManAutoBn: _streamManAutoBn,
                           ),
-                        if (widget.stationName == Station.sorting)
-                          _streamManAutoBn(
-                            bnDimensions: bnDimensions,
-                            stream: _streamControllerSortingBnManAuto.stream,
-                          ),
+                        ),
+                        // _controlBn(
+                        //   dimension: bnDimensions,
+                        //   text:
+                        //       'START${(widget.stationName == Station.all) ? ' ALL' : ''}',
+                        //   onTap: () => _startStopResetPressed('start'),
+                        // ),
+                        // _controlBn(
+                        //   dimension: bnDimensions,
+                        //   text:
+                        //       'STOP${(widget.stationName == Station.all) ? ' ALL' : ''}',
+                        //   onTap: () => _startStopResetPressed('stop'),
+                        // ),
+                        // _controlBn(
+                        //   dimension: bnDimensions,
+                        //   text:
+                        //       'RESET${(widget.stationName == Station.all) ? ' ALL' : ''}',
+                        //   onTap: () => _startStopResetPressed('reset'),
+                        // ),
+                        // if (widget.stationName == Station.distribution)
+                        //   _streamManAutoBn(
+                        //     bnDimensions: {
+                        //       'width': cons.maxWidth * 0.32,
+                        //       'height': cons.maxHeight * 0.19,
+                        //     },
+                        //   ),
+                        // if (widget.stationName == Station.sorting)
+                        //   _streamManAutoBn(
+                        //     bnDimensions: {
+                        //       'width': cons.maxWidth * 0.32,
+                        //       'height': cons.maxHeight * 0.19,
+                        //     },
+                        //   ),
                       ]),
                   Column(
                     children: [
@@ -363,37 +444,6 @@ class _ControlPanelState extends State<ControlPanel> {
   @override
   void dispose() {
     super.dispose();
-    switch (widget.stationName) {
-      case Station.distribution:
-        _streamControllerSorting.close();
-        _streamControllerAll.close();
-        _streamControllerSortingPower.close();
-        _streamControllerAllPower.close();
-        _streamControllerSortingManualAuto.close();
-        _streamControllerSortingBnManAuto.close();
-        _streamControllerSortingTxtManAuto.close();
-        break;
-      case Station.sorting:
-        _streamControllerDistribution.close();
-        _streamControllerAll.close();
-        _streamControllerDistributionPower.close();
-        _streamControllerAllPower.close();
-        _streamControllerDistributionManualAuto.close();
-        _streamControllerDistributionBnManAuto.close();
-        _streamControllerDistributionTxtManAuto.close();
-        break;
-      case Station.all:
-        _streamControllerDistribution.close();
-        _streamControllerSorting.close();
-        _streamControllerDistributionPower.close();
-        _streamControllerSortingPower.close();
-        _streamControllerDistributionManualAuto.close();
-        _streamControllerSortingManualAuto.close();
-        _streamControllerDistributionBnManAuto.close();
-        _streamControllerSortingBnManAuto.close();
-        _streamControllerDistributionTxtManAuto.close();
-        _streamControllerSortingTxtManAuto.close();
-        break;
-    }
+    _disposeListeners();
   }
 }

@@ -4,8 +4,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'package:testapp/screens/home_screen.dart';
 
+import '../screens/home_screen.dart';
 import '../models/user.dart';
 import '../widgets/http_exception.dart';
 import '../global/global_data.dart';
@@ -64,12 +64,6 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
                 "isAdmin": false,
                 "isAllowedInApp": false,
                 "isOnline": false,
-                "loginDetails": [
-                  {
-                    "login": DateTime.now().toIso8601String(),
-                    "logout": DateTime.now().toIso8601String(),
-                  }
-                ],
               }
             }));
         return;
@@ -101,6 +95,7 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
         });
 
         _user = userLoggedIn;
+
         if (_user!.isAllowedInApp == false) {
           throw HttpException('NOT_ALLOWED');
         } else {
@@ -138,7 +133,6 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
       ),
     ));
 
-
     notifyListeners();
 
     final prefs = await SharedPreferences.getInstance();
@@ -154,7 +148,7 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
       'loginTime': _user!.loggedInTime!.toIso8601String()
     });
     prefs.setString('userData', userData);
-    if(HomeScreen.inScreen == false){
+    if (HomeScreen.inScreen == false) {
       throw HttpException('FORCE_LOGIN_SUCCESSFUL');
     }
   }
@@ -174,18 +168,14 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
     user.loggedOutTime = DateTime.now();
     user.isOnline = false;
     Map<String, String> loginLogoutData = user.addLoginDetails();
-    List<dynamic> newLoginData = [
-      ...user.loginDetails,
-      loginLogoutData
-    ];
-
+    List<dynamic> newLoginData = [...(user.loginDetails), loginLogoutData];
+    user.loginDetails = newLoginData;
     await http.patch(
         Uri.parse('${GlobalData.mainEndpointUrl}/Users/${user.localId}.json'),
         body: json.encode({
           "isOnline": false,
-          "loginDetails": newLoginData,
+          "loginDetails": [...user.loginDetails],
         }));
-
   }
 
   Future<bool> tryAutoLogin() async {
@@ -210,7 +200,7 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
     _expiryDate = expiryDate;
     _userEmail = extractedUserData['userEmail'];
     _user = userLoggedIn;
-    _user!.loggedInTime= DateTime.parse(extractedUserData[ 'loginTime']);
+    _user!.loggedInTime = DateTime.parse(extractedUserData['loginTime']);
     _usersData = allUsr as List<User>;
     _autoLogout();
 
@@ -219,7 +209,7 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
   }
 
   void logout() async {
-    if(_user!=null){
+    if (_user != null) {
       _makeUserOffline(_user!);
     }
     _token = null;

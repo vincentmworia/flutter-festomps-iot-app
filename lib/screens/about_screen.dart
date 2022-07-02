@@ -18,7 +18,7 @@ class AboutScreen extends StatelessWidget {
       ),
       drawer: const CustomDrawer(),
       body: Padding(
-          padding: const EdgeInsets.fromLTRB(30.0,10.0,30.0,5.0),
+          padding: const EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 5.0),
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
@@ -122,7 +122,8 @@ class AboutScreen extends StatelessWidget {
                     fontSize: 16.0,
                   ),
                 ),
-                spacing, const Text(
+                spacing,
+                const Text(
                   'HMI DEVICE TYPE:',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -137,7 +138,8 @@ class AboutScreen extends StatelessWidget {
                     fontSize: 16.0,
                   ),
                 ),
-                spacing,const Text(
+                spacing,
+                const Text(
                   'CONNECTION TYPE:',
                   textAlign: TextAlign.center,
                   style: TextStyle(

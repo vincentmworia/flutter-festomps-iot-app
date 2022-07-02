@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:provider/provider.dart';
 
 import '../global/enum_data.dart';
-// import '../providers/control_operations.dart';
 import 'control_panel/control_panel.dart';
 import 'monitor_panel/monitor_panel.dart';
 
@@ -37,7 +35,6 @@ class StationPage extends StatelessWidget {
       );
 
   Widget _headerText({
-
     required double textHeight,
     required String title,
     required Color color,
@@ -47,12 +44,12 @@ class StationPage extends StatelessWidget {
         height: textHeight,
         child: Center(
             child: FittedBox(
-              child: Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(color: color, fontSize: 22.0, letterSpacing: 2.0),
-        ),
-            )),
+          child: Text(
+            title,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: color, fontSize: 22.0, letterSpacing: 2.0),
+          ),
+        )),
       );
 
   @override
@@ -103,14 +100,15 @@ class StationPage extends StatelessWidget {
                     height: cardHeight,
                     context: context,
                     backgroundColor: cardBackgroundClr,
-                    child: ControlPanel(
-                      width: cnt.maxWidth,
-                      height: cnt.maxHeight,
-                      stationName: stationName == Station.distribution
-                          ? Station.distribution
-                          : stationName == Station.sorting
-                              ? Station.sorting
-                              : Station.all,
+                    child:  ControlPanel(
+                        width: cnt.maxWidth,
+                        height: cnt.maxHeight,
+                        stationName: stationName == Station.distribution
+                            ? Station.distribution
+                            : stationName == Station.sorting
+                                ? Station.sorting
+                                : Station.all,
+
                     ),
                   ),
                 ],

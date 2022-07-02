@@ -3,8 +3,8 @@ class User {
   final String email;
   final String firstname;
   final String lastname;
-  final bool isAdmin;
-  final bool isAllowedInApp;
+   bool isAdmin;
+  bool isAllowedInApp;
   bool isOnline;
   DateTime? loggedInTime;
   DateTime? loggedOutTime;
