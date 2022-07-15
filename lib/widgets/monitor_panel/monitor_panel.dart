@@ -33,8 +33,8 @@ enum ViewMode {
 class _MonitorPanelState extends State<MonitorPanel> {
   ViewMode _viewMode = ViewMode.stepper;
 
-  Uri url(String station) =>
-      Uri.parse('${GlobalData.mainEndpointUrl}/Stations/$station.json');
+  Uri url(String station) => Uri.parse(
+      '${GlobalData.mainEndpointUrl}/Stations/monitor/${station}.json');
 
   late StreamController _stepDistribution;
   late StreamController _stepSorting;
@@ -45,9 +45,8 @@ class _MonitorPanelState extends State<MonitorPanel> {
   @override
   void initState() {
     super.initState();
-    // todo adjust time to 10ms
-    Timer.periodic(const Duration(milliseconds: GlobalData.iotUpdateTime),
-        (timer) {
+    Timer.periodic(
+        const Duration(milliseconds: GlobalData.iotUpdateMonitorTime), (timer) {
       _getServerData();
     });
   }
@@ -55,22 +54,20 @@ class _MonitorPanelState extends State<MonitorPanel> {
   Future<void> _getServerData() async {
     switch (widget.stationName) {
       case Station.distribution:
-        final response = await http.get(url('station1Control'));
+        final response = await http.get(url('station1Monitor'));
         final stnData = json.decode(response.body);
         final codeStepNo = stnData["code_step_number"] as String;
         _stepDistribution.sink.add(codeStepNo);
         break;
       case Station.sorting:
-        final response = await http.get(url('station2Control'));
+        final response = await http.get(url('station2Monitor'));
         final stnData = json.decode(response.body) as Map<String, dynamic>;
-        // final codeStepNo = stnData["code_step_number"] as String;
-        // final workpiece = stnData["workpiece"] as String;
         _stepSorting.sink.add(stnData);
         break;
       case Station.all:
-        final response = await http.get(url('stationAllControl'));
+        final response = await http.get(url('stationAllMonitor'));
         final stnData = json.decode(response.body);
-        // final codeStepNo = stnData["code_step_number"] as String;
+        print(stnData);
         _stepAll.sink.add(stnData);
         break;
     }
@@ -120,6 +117,7 @@ class _MonitorPanelState extends State<MonitorPanel> {
           late int currentStep;
           if (widget.stationName == Station.distribution) {
             step = snapshot.data as String;
+            workpiece = Workpiece.unknown;
             currentStep = int.parse(step);
           }
           if (widget.stationName == Station.sorting ||
@@ -144,13 +142,13 @@ class _MonitorPanelState extends State<MonitorPanel> {
               if (_viewMode == ViewMode.image)
                 Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child:
-                        StepperView(currentStep, widget.stationName, workpiece))
+                    child: StepperView(
+                        currentStep, widget.stationName, workpiece!))
               else
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ImageView(currentStep, widget.stationName,
-                      widget.width, widget.height, workpiece),
+                      widget.width, widget.height, workpiece!),
                 ),
               GestureDetector(
                 onDoubleTap: () {
@@ -165,7 +163,6 @@ class _MonitorPanelState extends State<MonitorPanel> {
                   height: double.infinity,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(widget.width * 0.075),
-                    // color: Theme.of(context).primaryColor.withOpacity(0.1), todo
                   ),
                 ),
               ),

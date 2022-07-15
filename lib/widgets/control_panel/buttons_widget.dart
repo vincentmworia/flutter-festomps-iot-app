@@ -48,7 +48,7 @@ class ControlBns extends StatefulWidget {
 
 class _ControlBnsState extends State<ControlBns> {
   Uri url(String station) =>
-      Uri.parse('${GlobalData.mainEndpointUrl}/Stations/$station.json');
+      Uri.parse('${GlobalData.mainEndpointUrl}/Stations/control/$station.json');
 
   Future<void> _bnTrue() => Future.delayed(
         const Duration(milliseconds: GlobalData.activeBnDelayTime),
@@ -98,16 +98,16 @@ class _ControlBnsState extends State<ControlBns> {
             text: 'RESET${(widget.stationName == Station.all) ? ' ALL' : ''}',
             onTap: () => _startStopResetPressed('reset'),
           ),
-          if (widget.stationName == Station.distribution)
-            widget.streamManAutoBn(
-              bnDimensions: widget.bnDimensions,
-              activeBn: activeBn,
-            ),
-          if (widget.stationName == Station.sorting)
-            widget.streamManAutoBn(
-              bnDimensions: widget.bnDimensions,
-              activeBn: activeBn,
-            ),
+          // if (widget.stationName == Station.distribution)
+          //   widget.streamManAutoBn(
+          //     bnDimensions: widget.bnDimensions,
+          //     activeBn: activeBn,
+          //   ),
+          // if (widget.stationName == Station.sorting)
+          //   widget.streamManAutoBn(
+          //     bnDimensions: widget.bnDimensions,
+          //     activeBn: activeBn,
+          //   ),
         ]);
   }
 }

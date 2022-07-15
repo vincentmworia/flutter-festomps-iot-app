@@ -28,30 +28,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Widget _addRow(String title, String data) => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Text(
-            '$title:',
-            style: const TextStyle(
-              color: Colors.black54,
-              fontSize: 22.0,
-            ),
-          ),
-          const SizedBox(
-            height: 2.0,
-          ),
-          Text(
-            data, //todo
-            style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 20.0,
-                overflow: TextOverflow.fade),
-          ),
-        ],
-      );
-
   TableRow _tableRowHeader(String key, String value) =>
       TableRow(children: <Widget>[
         TableCell(
@@ -76,7 +52,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ]);
 
-// todo Change First and Last Name, unnecessary,  DELETE ACCOUNT<DEAUTHENTICATE AND DELETE IN USER CONSOLE>
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -171,17 +146,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     ));
   }
 }
-/*
-
-            '''
-        USER DATA:
-      ID:  ${loggedInUser.localId}
-
-      FIRST NAME:  ${loggedInUser.firstname}
-      LAST NAME:  ${loggedInUser.lastname}
-     IS ADMIN:  ${loggedInUser.isAdmin}
-     IS ALLOWED IN APP:  ${loggedInUser.isAllowedInApp}
-     IS ONLINE:  ${loggedInUser.isOnline}
-      LOGIN TIME:  ${loggedInUser.loggedInTime}
-        '''
-*/

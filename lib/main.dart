@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:testapp/providers/activate_button.dart';
-import 'package:testapp/providers/logged_in_user.dart';
-import 'package:testapp/screens/admin_detailed_screen.dart';
 
+import './providers/activate_button.dart';
+import './providers/logged_in_user.dart';
+import './screens/admin_detailed_screen.dart';
 import './screens/home_screen.dart';
 import './screens/input_output_page.dart';
 import './screens/user_authentication_screen.dart';
@@ -43,7 +43,6 @@ class MyApp extends StatelessWidget {
       ],
       child: Consumer<FirebaseAuthenticationHandler>(
           builder: (_, firebaseAuth, __) {
-        // firebaseAuth.logout();
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: MyApp._appName,

@@ -26,7 +26,7 @@ class _AdminUserDetailsScreenState extends State<AdminUserDetailsScreen> {
     super.didChangeDependencies();
     if (!_hasInitialized) {
       user = ModalRoute.of(context)!.settings.arguments as User;
-      user.loginDetails = (user.loginDetails).map((e) => e).toList();
+      user.loginDetails = (user.loginDetails ?? []).map((e) => e).toList();
       _hasInitialized = true;
     }
   }
@@ -285,7 +285,7 @@ class _AdminUserDetailsScreenState extends State<AdminUserDetailsScreen> {
                             login: 'Login',
                             logout: 'Logout',
                             timeSpent: 'Duration'),
-                        ...((user.loginDetails).map((e) {
+                        ...((user.loginDetails ?? []).map((e) {
                           i++;
                           var timeInMin = DateTime.parse(e['logout'])
                               .difference(DateTime.parse(e['login']))

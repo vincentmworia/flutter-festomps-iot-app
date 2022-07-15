@@ -12,13 +12,13 @@ class ImageView extends StatelessWidget {
   final Station stationName;
   final double width;
   final double height;
-  final Workpiece? workpiece;
+  final Workpiece workpiece;
 
   @override
   Widget build(BuildContext context) {
     List<Map<String, String>> data = stationName == Station.distribution
         ? distributionData():stationName == Station.sorting?
-        sortingData(workpiece!): allStationsData(workpiece!);
+        sortingData(workpiece): allStationsData(workpiece);
 
     final imageUrl = data[currentStep]['imageUrl'] as String;
     return Center(

@@ -96,12 +96,12 @@ class CustomDrawer extends StatelessWidget {
             onTap: () => Navigator.of(context)
                 .pushReplacementNamed(HomeScreen.routeName),
           ),
-          _buildDrawer(
-            icon: const Icon(Icons.output),
-            title: 'I/O Status',
-            onTap: () => Navigator.of(context)
-                .pushReplacementNamed(InputOutputScreen.routeName),
-          ),
+          // _buildDrawer(
+          //   icon: const Icon(Icons.output),
+          //   title: 'I/O Status',
+          //   onTap: () => Navigator.of(context)
+          //       .pushReplacementNamed(InputOutputScreen.routeName),
+          // ),
           _buildDrawer(
             icon: const Icon(Icons.account_circle),
             title: 'Your Profile',

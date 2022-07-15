@@ -170,6 +170,13 @@ List<Map<String, String>> sortingData(Workpiece workpiece) => [
         'content': 'SLIDER FULL!!!',
         'imageUrl': 'assets/images/distribution/step7.PNG'
       },
+      {
+        'id': '8',
+        'title': 'STEP EIGHT',
+        'subtitle': 'Cycle Complete',
+        'content': 'Cycle Complete',
+        'imageUrl': 'assets/images/distribution/step8.PNG'
+      },
     ];
 
 List<Map<String, String>> allStationsData(Workpiece workpiece) => [

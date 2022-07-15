@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../global/enum_data.dart';
-import 'control_panel/control_panel.dart';
-import 'monitor_panel/monitor_panel.dart';
+import './control_panel/control_panel.dart';
+import './monitor_panel/monitor_panel.dart';
 
 class StationPage extends StatelessWidget {
   const StationPage(this.stationName, {Key? key}) : super(key: key);

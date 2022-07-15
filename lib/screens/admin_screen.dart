@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:testapp/providers/logged_in_user.dart';
-import 'package:testapp/screens/admin_detailed_screen.dart';
-import 'package:testapp/widgets/user_data.dart';
 
+import '../providers/logged_in_user.dart';
+import '../screens/admin_detailed_screen.dart';
+import '../widgets/user_data.dart';
 import '../global/global_data.dart';
 import '../widgets/custom_drawer.dart';
 import '../models/user.dart';
@@ -33,8 +33,8 @@ class _AdminScreenState extends State<AdminScreen> {
     super.initState();
     _allUsersStream = StreamController();
 
-    Timer.periodic(const Duration(milliseconds: GlobalData.iotUpdateTime),
-        (timer) {
+    Timer.periodic(
+        const Duration(milliseconds: GlobalData.iotUpdateMonitorTime), (timer) {
       _getServerData();
     });
   }
@@ -55,19 +55,14 @@ class _AdminScreenState extends State<AdminScreen> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-    // _allUsersStream.close();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_hasInitialized) {
       final adminData =
           ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       loggedInUser = adminData['current_user'] as User;
-      Provider.of<LoggedInUser>(context,listen: false).setLoggedInUser(loggedInUser);
+      Provider.of<LoggedInUser>(context, listen: false)
+          .setLoggedInUser(loggedInUser);
       userData = adminData['users_data'] as List<User>;
       _hasInitialized = true;
     }

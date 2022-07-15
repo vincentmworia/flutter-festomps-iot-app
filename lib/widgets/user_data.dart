@@ -48,11 +48,6 @@ class UserData extends StatelessWidget {
                         await http
                             .delete(Uri.parse(
                                 '${GlobalData.mainEndpointUrl}/Users/${userMain.localId}.json'))
-                            //     .then((_)
-                            // async => await http.post(
-                            //           Uri.parse(
-                            //               'https://identitytoolkit.googleapis.com/v1/accounts:delete?key=AIzaSyDz7iwV4d9mZGrQvrbO7mY1MEkoZb34Dv0'),
-                            //         ))
                             .then((_) {
                           Navigator.of(ctx).pop();
                         });
@@ -94,9 +89,10 @@ class UserData extends StatelessWidget {
               title: Text('${userMain.firstname}\t${userMain.lastname}'),
               subtitle: Text(userMain.email),
               trailing: userMain.isAllowedInApp && userMain.isAdmin
-                  ? const Text('⭐⭐')
+                  ? const Icon(Icons.admin_panel_settings)
+              // const Text('⭐⭐')
                   : userMain.isAllowedInApp && !userMain.isAdmin
-                      ? const Text('⭐')
+                      ?null
                       : !userMain.isAllowedInApp
                           ? SizedBox(
                               width: MediaQuery.of(context).size.width * 0.25,

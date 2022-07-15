@@ -86,15 +86,15 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
             isAllowedInApp: usrData['isAllowedInApp'] as bool,
             isAdmin: usrData['isAdmin'] as bool,
             isOnline: usrData['isOnline'] as bool,
-            loginDetails: usrData['loginDetails'] as List<dynamic>,
+            loginDetails: usrData['loginDetails'] as List<dynamic>?,
           );
+          // print(usr);
           firebaseData.insert(0, usr);
           if (userId == responseData['localId']) {
             userLoggedIn = usr;
+            _user = userLoggedIn;
           }
         });
-
-        _user = userLoggedIn;
 
         if (_user!.isAllowedInApp == false) {
           throw HttpException('NOT_ALLOWED');
@@ -107,7 +107,6 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
           _user!.loggedInTime = DateTime.now();
           _userId = _user!.localId;
         }
-
         if (_user!.isAdmin) {
           _usersData = firebaseData;
         }
@@ -168,13 +167,16 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
     user.loggedOutTime = DateTime.now();
     user.isOnline = false;
     Map<String, String> loginLogoutData = user.addLoginDetails();
-    List<dynamic> newLoginData = [...(user.loginDetails), loginLogoutData];
+    List<dynamic> newLoginData = [
+      ...(user.loginDetails ?? []),
+      loginLogoutData
+    ];
     user.loginDetails = newLoginData;
     await http.patch(
         Uri.parse('${GlobalData.mainEndpointUrl}/Users/${user.localId}.json'),
         body: json.encode({
           "isOnline": false,
-          "loginDetails": [...user.loginDetails],
+          "loginDetails": [...user.loginDetails ?? []],
         }));
   }
 
@@ -225,8 +227,6 @@ class FirebaseAuthenticationHandler with ChangeNotifier {
 
     final prefs = await SharedPreferences.getInstance();
     prefs.clear();
-    // prefs.remove(
-    //     'userData'); // - Removes specific item in the shared preferences API
     notifyListeners();
   }
 

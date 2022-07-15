@@ -8,7 +8,7 @@ class User {
   bool isOnline;
   DateTime? loggedInTime;
   DateTime? loggedOutTime;
-  List<dynamic> loginDetails;
+  List<dynamic>? loginDetails;
 
   User({
     required this.localId,

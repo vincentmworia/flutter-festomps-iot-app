@@ -37,7 +37,7 @@ class _ControlPanelState extends State<ControlPanel> {
   late bool powerAll;
 
   Uri url(String station) =>
-      Uri.parse('${GlobalData.mainEndpointUrl}/Stations/$station.json');
+      Uri.parse('${GlobalData.mainEndpointUrl}/Stations/monitor/$station.json');
 
   // Streams Initialization
   late StreamController _streamControllerDistribution;
@@ -73,8 +73,8 @@ class _ControlPanelState extends State<ControlPanel> {
     powerSorting = false;
     powerAll = false;
 
-    Timer.periodic(const Duration(milliseconds: GlobalData.iotUpdateTime),
-        (timer) {
+    Timer.periodic(
+        const Duration(milliseconds: GlobalData.iotUpdateMonitorTime), (timer) {
       _getServerData();
     });
   }
@@ -96,25 +96,6 @@ class _ControlPanelState extends State<ControlPanel> {
         ),
       );
 
-  // Future<void> _startStopResetPressed(String button) async {
-  //   // setState(() => _activeBn = false);
-  //   switch (widget.stationName) {
-  //     case Station.distribution:
-  //       await http.patch(url('station1Control'),
-  //           body: json.encode({button: 'true'}));
-  //       break;
-  //     case Station.sorting:
-  //       await http.patch(url('station2Control'),
-  //           body: json.encode({button: 'true'}));
-  //       break;
-  //     case Station.all:
-  //       await http.patch(url('stationAllControl'),
-  //           body: json.encode({button: 'true'}));
-  //       break;
-  //   }
-  //   _bnTrue();
-  // }
-
   Future<void> _manualAutoPressed() async {
     final update = Provider.of<ActivateBn>(context, listen: false);
     update.changeActiveBnStatus(false);
@@ -122,11 +103,11 @@ class _ControlPanelState extends State<ControlPanel> {
     Future<void> httpReq(String stationName) async {
       await http.patch(url(stationName),
           body: json.encode({
-            'manual_mode_phone': stationName == 'station1Control'
+            'manual_mode_phone': stationName == 'station1Monitor'
                 ? (machineModeDistribution == MachineMode.auto
                     ? 'true'
                     : 'false')
-                : stationName == 'station2Control'
+                : stationName == 'station2Monitor'
                     ? (machineModeSorting == MachineMode.auto
                         ? 'true'
                         : 'false')
@@ -136,13 +117,13 @@ class _ControlPanelState extends State<ControlPanel> {
 
     switch (widget.stationName) {
       case Station.distribution:
-        httpReq('station1Control');
+        httpReq('station1Monitor');
         break;
       case Station.sorting:
-        httpReq('station2Control');
+        httpReq('station2Monitor');
         break;
       case Station.all:
-        httpReq('stationAllControl');
+        httpReq('stationAllMonitor');
         break;
     }
     Future.delayed(
@@ -155,7 +136,7 @@ class _ControlPanelState extends State<ControlPanel> {
   Future<void> _getServerData() async {
     switch (widget.stationName) {
       case Station.distribution:
-        final response = await http.get(url('station1Control'));
+        final response = await http.get(url('station1Monitor'));
         final stnData = json.decode(response.body);
         final systemPower = stnData["system_on"] == "true" ? true : false;
         final manualStepNo = stnData["manual_step_number"] as String;
@@ -174,7 +155,7 @@ class _ControlPanelState extends State<ControlPanel> {
         _streamControllerDistribution.sink.add(response);
         break;
       case Station.sorting:
-        final response = await http.get(url('station2Control'));
+        final response = await http.get(url('station2Monitor'));
         final stnData = json.decode(response.body);
         final systemPower = stnData["system_on"] == "true" ? true : false;
         final manualStepNo = stnData["manual_step_number"] as String;
@@ -193,7 +174,7 @@ class _ControlPanelState extends State<ControlPanel> {
         _streamControllerSorting.sink.add(response);
         break;
       case Station.all:
-        final response = await http.get(url('stationAllControl'));
+        final response = await http.get(url('stationAllMonitor'));
         final stnData = json.decode(response.body);
         final systemPower = stnData["system_on"] == "true" ? true : false;
         _streamControllerAllPower.sink.add(systemPower);
@@ -238,10 +219,9 @@ class _ControlPanelState extends State<ControlPanel> {
             );
           });
 
-  Widget _streamManAutoBn({
-    required Map<String, double> bnDimensions,
-    required bool activeBn
-  }) =>
+  Widget _streamManAutoBn(
+          {required Map<String, double> bnDimensions,
+          required bool activeBn}) =>
       StreamBuilder(
           stream: widget.stationName == Station.distribution
               ? _streamControllerDistributionBnManAuto.stream
@@ -252,7 +232,7 @@ class _ControlPanelState extends State<ControlPanel> {
             }
             MachineMode machineMode = snapshot.data as MachineMode;
             return _controlBn(
-              activeBn: activeBn, //todo
+              activeBn: activeBn,
               dimension: bnDimensions,
               text:
                   'SWITCH\n${machineMode == MachineMode.auto ? 'MANUAL' : 'AUTO'}',
